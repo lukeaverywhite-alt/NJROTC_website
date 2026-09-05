@@ -14,6 +14,9 @@ A mobile-first, static information portal for the Bethel, Connecticut NJROTC uni
 - `data/gallery.js` — approved gallery image metadata.
 - `assets/` — replaceable unit mark, favicon, and future optimized photographs.
 - `.github/workflows/deploy-pages.yml` — existing no-build GitHub Pages deployment.
+# Bethel NJROTC website
+
+A lightweight, responsive website starter for the Bethel, Connecticut NJROTC unit. It is built with plain HTML, CSS, and JavaScript, so there is no build step or package maintenance.
 
 ## Preview locally
 
@@ -103,3 +106,23 @@ The existing workflow publishes the repository root without a build step:
 4. Push to `main`, or manually run **Deploy to GitHub Pages**.
 
 All internal assets and page links use relative paths, so the site works under a GitHub project Pages subdirectory. If the default deployment branch changes, update `on.push.branches` in `.github/workflows/deploy-pages.yml`.
+Then open <http://localhost:8000>.
+
+## Customize the site
+
+- Update announcements, events, staff names, and contact details in `index.html`.
+- Adjust colors and layout in `styles.css`.
+- Update the copyright year or mobile-navigation behavior in `script.js`.
+
+Text marked **“Details coming soon”** is intentionally ready for the unit to replace with confirmed dates, names, or contact information.
+
+## Publish with GitHub Pages
+
+The workflow in `.github/workflows/deploy-pages.yml` publishes the repository as a static GitHub Pages site.
+
+1. Push the repository to GitHub.
+2. In the repository, open **Settings → Pages**.
+3. Under **Build and deployment**, set **Source** to **GitHub Actions**.
+4. Push to `main`, or manually run **Deploy to GitHub Pages** from the Actions tab.
+
+If your default branch has a different name, update the branch listed under `on.push.branches` in the workflow.
