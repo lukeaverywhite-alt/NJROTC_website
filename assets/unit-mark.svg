@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">Bethel NJROTC unit mark</title>
+  <desc id="description">A navy and gold circular mark with Bethel NJROTC lettering, an anchor, and a maroon wildcat.</desc>
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0a8"/><stop offset=".42" stop-color="#e6b949"/><stop offset="1" stop-color="#9b6714"/></linearGradient>
+    <radialGradient id="field"><stop offset="0" stop-color="#173a67"/><stop offset="1" stop-color="#071b36"/></radialGradient>
+    <filter id="aura" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <path id="topArc" d="M 91 251 A 165 165 0 0 1 421 251"/><path id="bottomArc" d="M 82 286 A 180 180 0 0 0 430 286"/>
+  </defs>
+  <circle cx="256" cy="256" r="247" fill="#061426" stroke="#45c7ff" stroke-width="2" opacity=".95"/>
+  <circle cx="256" cy="256" r="235" fill="url(#gold)"/><circle cx="256" cy="256" r="219" fill="url(#field)" stroke="#f7df8a" stroke-width="3"/><circle cx="256" cy="256" r="153" fill="#f8faf8" stroke="url(#gold)" stroke-width="8"/>
+  <g fill="#fff" font-family="Georgia, 'Times New Roman', serif" font-weight="700" text-anchor="middle"><text font-size="55" letter-spacing="7"><textPath href="#topArc" startOffset="50%">BETHEL</textPath></text><text font-size="47" letter-spacing="6"><textPath href="#bottomArc" startOffset="50%">NJROTC</textPath></text></g>
+  <g fill="none" stroke="url(#gold)" stroke-linecap="round" stroke-linejoin="round" filter="url(#aura)"><circle cx="256" cy="181" r="25" stroke-width="13"/><path d="M256 207v164M204 228h104" stroke-width="16"/><path d="M163 326c16 58 63 77 93 77s77-19 93-77M163 326l-16 27M163 326l29 9M349 326l16 27M349 326l-29 9" stroke-width="15"/></g>
+  <!-- Geometric wildcat profile inspired by the supplied unit artwork. -->
+  <g stroke="#171317" stroke-linejoin="round"><path d="M151 249l47-45 1 34c29-31 75-43 116-25l36-17-13 42c18 15 30 36 32 62-25-15-42-15-59-8-14 6-27 20-43 22-25 3-46-20-65-28l-38 15 15-30z" fill="#7b1735" stroke-width="9"/><path d="M205 239c24-18 59-24 91-12-30 2-48 11-64 28l-45 4z" fill="#fff" stroke-width="7"/><path d="M273 264c20-7 44-3 61 10l-28 7-14 20-23-13z" fill="#f8faf8" stroke-width="7"/><path d="M324 270l30 4-18 17z" fill="#171317" stroke-width="5"/><path d="M286 266l7 1" fill="none" stroke="#45c7ff" stroke-width="7" stroke-linecap="round"/><path d="M213 287l-34 27 44-8-20 29 52-25" fill="#4c0d24" stroke-width="8"/></g>
+  <circle cx="256" cy="256" r="247" fill="none" stroke="#45c7ff" stroke-width="2" opacity=".8" filter="url(#aura)"/>
+</svg>
