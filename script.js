@@ -84,13 +84,13 @@
   }
   function renderQuickLinks() {
     document.querySelectorAll('[data-quick-links]').forEach(region => {
-      region.innerHTML = config.quickLinks.map((item, index) => `<a class="nav-card" href="${item.href}"><small>Quick access</small><b>${String(index + 1).padStart(2, '0')}</b><h3>${item.label}</h3><p>${item.description}</p></a>`).join('');
+      region.innerHTML = config.quickLinks.map((item, index) => `<a class="quick-link" href="${item.href}"><span>${String(index + 1).padStart(2, '0')}</span><strong>${item.label}</strong><small>${item.description}</small></a>`).join('');
     });
   }
   function renderAnnouncements() {
     document.querySelectorAll('[data-announcements]').forEach(region => {
       const items = activeAnnouncements();
-      region.innerHTML = items.length ? items.map(item => `<article class="announcement ${item.level}" role="${item.level === 'urgent' ? 'alert' : 'status'}"><span class="notice-level">${item.level} notice</span><div><h2>${item.title}</h2><p>${item.message}</p></div>${item.link ? `<a href="${item.link}">Learn more <span aria-hidden="true">→</span></a>` : ''}</article>`).join('') : '';
+      region.innerHTML = items.length ? items.map(item => `<article class="announcement ${item.level}" role="${item.level === 'urgent' ? 'alert' : 'status'}"><span class="notice-level">${item.level} notice</span><div><strong class="announcement-title">${item.title}</strong><p>${item.message}</p></div>${item.link ? `<a href="${item.link}">Learn more <span aria-hidden="true">→</span></a>` : ''}</article>`).join('') : '';
     });
   }
   function renderCountdown() {
@@ -98,10 +98,10 @@
     if (!region) return;
     const event = config.featuredEvent;
     if (!event.enabled || !event.target || Number.isNaN(new Date(event.target).getTime())) {
-      region.innerHTML = `<div class="countdown-empty"><span class="interface-label">Featured event</span><h2>Next milestone awaiting confirmation</h2><p>The unit webmaster can publish a verified countdown from the central configuration file.</p></div>`;
+      region.innerHTML = `<div class="countdown-empty"><strong>Schedule awaiting confirmation</strong><p>Check the Plan of the Week for the latest verified unit schedule.</p></div>`;
       return;
     }
-    region.innerHTML = `<div class="countdown-copy"><span class="interface-label">Featured event</span><h2>${event.name}</h2><p>${event.subtitle}</p>${event.location ? `<small>${event.location}</small>` : ''}</div><div class="countdown-units" aria-live="polite">${['days','hours','minutes','seconds'].map(u => `<div><strong data-unit="${u}">00</strong><span>${u}</span></div>`).join('')}</div>`;
+    region.innerHTML = `<div class="countdown-copy"><strong>${event.name}</strong><p>${event.subtitle}</p>${event.location ? `<small>${event.location}</small>` : ''}</div><div class="countdown-units" aria-live="polite">${['days','hours','minutes','seconds'].map(u => `<div><strong data-unit="${u}">00</strong><span>${u}</span></div>`).join('')}</div>`;
     const update = () => {
       const distance = Math.max(0, new Date(event.target).getTime() - Date.now());
       const values = { days: Math.floor(distance / 86400000), hours: Math.floor(distance / 3600000) % 24, minutes: Math.floor(distance / 60000) % 60, seconds: Math.floor(distance / 1000) % 60 };
@@ -133,19 +133,3 @@
     dialog?.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') show(current - 1); if (e.key === 'ArrowRight') show(current + 1); });
   }
 })();
-const menuButton = document.querySelector('.menu-toggle');
-const menu = document.querySelector('.nav-links');
-
-menuButton.addEventListener('click', () => {
-  const isOpen = menu.classList.toggle('open');
-  menuButton.setAttribute('aria-expanded', String(isOpen));
-});
-
-menu.addEventListener('click', (event) => {
-  if (event.target.matches('a')) {
-    menu.classList.remove('open');
-    menuButton.setAttribute('aria-expanded', 'false');
-  }
-});
-
-document.querySelector('#year').textContent = new Date().getFullYear();
