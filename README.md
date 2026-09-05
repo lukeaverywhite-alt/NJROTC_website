@@ -9,6 +9,7 @@ A mobile-first, static information portal for the Bethel, Connecticut NJROTC uni
 - `styles.css` — shared dark/light command-interface design system and responsive layouts.
 - `script.js` — shared navigation, theme, announcements, countdown, calendar, and gallery behavior.
 - `weather.js` — browser-side Open-Meteo weather client and condition-aware presentation.
+- Weather scene markup and CSS provide moving sunlight, clouds, rain, and restrained lightning, with all motion disabled or minimized when the visitor requests reduced motion.
 - `data/site-config.js` — frequently edited site identity, event, weather, calendar, contact, and quick-link settings.
 - `data/announcements.js` — date-aware static announcements.
 - `data/gallery.js` — approved gallery image metadata.
@@ -64,6 +65,7 @@ The shared primary and “More” navigation arrays are near the top of `script.
 
 ### Unit logo and favicon
 
+The unit artwork is stored as the text-based vector file `assets/unit-mark.svg` and referenced by `identity.logo` in `data/site-config.js`. SVG keeps the logo crisp at every size and allows pull-request tools to display its source as text rather than rejecting a binary image. To replace it later, add an approved square SVG and update that configuration value. The circular frame and restrained blue/gold illumination are applied by CSS. Replace `assets/favicon.svg` separately if an approved compact mark is available. Do not stretch or alter official artwork.
 Replace `assets/unit-mark.svg` with an approved unit seal while retaining the filename and a square view box. The included graphic is an original placeholder, not an official unit emblem. Replace `assets/favicon.svg` separately if an approved compact mark is available. Do not stretch or alter the proportions of an official emblem.
 
 ### Gallery photos
