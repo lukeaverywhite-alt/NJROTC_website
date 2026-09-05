@@ -169,6 +169,25 @@
   const menuButton = document.querySelector('.menu-button');
   const menu = document.querySelector('.site-menu');
   const closeMenu = () => { menu?.classList.remove('open'); menuButton?.setAttribute('aria-expanded', 'false'); };
+  menuButton?.addEventListener('click', () => {
+    const open = menu.classList.toggle('open');
+    menuButton.setAttribute('aria-expanded', String(open));
+  });
+  menu?.addEventListener('click', e => { if (e.target.matches('a')) closeMenu(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && menu?.classList.contains('open')) {
+      closeMenu();
+      menuButton?.focus();
+    }
+  });
+  document.addEventListener('click', e => { if (menu?.classList.contains('open') && !e.target.closest('.command-nav')) closeMenu(); });
+  document.querySelectorAll('[data-year]').forEach(el => { el.textContent = new Date().getFullYear(); });
+
+  renderAnnouncements();
+  renderQuickLinks();
+  renderCountdown();
+  renderCalendar();
+  renderGallery();
   menuButton?.addEventListener('click', () => menuButton.setAttribute('aria-expanded', String(menu.classList.toggle('open'))));
   menu?.addEventListener('click', event => { if (event.target.matches('a')) closeMenu(); });
   document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeMenu(); menuButton?.focus(); } });
@@ -253,6 +272,31 @@
   function renderGallery() {
     const grid = document.querySelector('[data-gallery]');
     if (!grid) return;
+
+    const isLocalSource = src => typeof src === 'string'
+      && src.trim().length > 0
+      && !/^(?:[a-z][a-z\d+.-]*:|\/\/|#|\?)/i.test(src.trim())
+      && !/[\u0000-\u001f<>"'`]/.test(src);
+    const items = (Array.isArray(window.GALLERY_ITEMS) ? window.GALLERY_ITEMS : []).filter(item =>
+      item && isLocalSource(item.src) && typeof item.alt === 'string' && item.alt.trim().length > 0
+    ).map(item => ({
+      src: item.src.trim(),
+      alt: item.alt.trim(),
+      caption: typeof item.caption === 'string' && item.caption.trim() ? item.caption.trim() : item.alt.trim()
+    }));
+
+    const showEmptyState = () => {
+      const empty = document.createElement('div');
+      empty.className = 'gallery-empty';
+      const heading = document.createElement('h2');
+      heading.textContent = 'Unit photography coming soon';
+      const copy = document.createElement('p');
+      copy.textContent = 'Verified photographs can be added without changing this page layout.';
+      empty.append(heading, copy);
+      grid.replaceChildren(empty);
+    };
+    if (!items.length) { showEmptyState(); return; }
+
     const items = (window.GALLERY_ITEMS || []).filter(item => validatedUrl(`${base}${item.src || ''}`));
     if (!items.length) {
       grid.replaceChildren(element('div', { className: 'gallery-empty' }, [element('h2', { text: 'Unit photography coming soon' }), element('p', { text: 'Verified photographs can be added without changing this page layout.' })]));
@@ -265,7 +309,82 @@
     });
     grid.replaceChildren(...cards);
     const dialog = document.querySelector('#gallery-dialog');
+    const dialogImage = dialog?.querySelector('img');
+    const dialogCaption = dialog?.querySelector('p');
+    const previousControl = dialog?.querySelector('[data-prev]');
+    const closeControl = dialog?.querySelector('[data-close]');
+    const nextControl = dialog?.querySelector('[data-next]');
+    const dialogReady = dialog && dialogImage && dialogCaption && previousControl && closeControl && nextControl
+      && typeof dialog.showModal === 'function' && typeof dialog.close === 'function';
+
+    const makeImage = item => {
+      const image = document.createElement('img');
+      image.src = `${base}${item.src}`;
+      image.alt = item.alt;
+      image.loading = 'lazy';
+      image.addEventListener('error', () => {
+        image.hidden = true;
+        const unavailable = document.createElement('span');
+        unavailable.className = 'gallery-image-error';
+        unavailable.setAttribute('role', 'status');
+        unavailable.textContent = 'Photograph unavailable';
+        image.parentNode?.insertBefore(unavailable, image.nextSibling);
+      }, { once: true });
+      return image;
+    };
+
+    grid.replaceChildren();
+    items.forEach((item, index) => {
+      const card = document.createElement(dialogReady ? 'button' : 'figure');
+      card.className = dialogReady ? 'gallery-card' : 'gallery-figure';
+      if (dialogReady) {
+        card.type = 'button';
+        card.dataset.galleryIndex = String(index);
+        card.setAttribute('aria-label', `View photograph: ${item.alt}`);
+      }
+      const caption = document.createElement(dialogReady ? 'span' : 'figcaption');
+      caption.textContent = item.caption;
+      card.append(makeImage(item), caption);
+      grid.append(card);
+    });
+    if (!dialogReady) return;
+
     let current = 0;
+    let opener = null;
+    const show = index => {
+      current = (index + items.length) % items.length;
+      dialogImage.hidden = true;
+      dialogImage.src = `${base}${items[current].src}`;
+      dialogImage.alt = items[current].alt;
+      dialogCaption.textContent = items[current].caption;
+    };
+    dialogImage.addEventListener('load', () => {
+      dialogImage.hidden = false;
+      dialogCaption.textContent = items[current].caption;
+    });
+    dialogImage.addEventListener('error', () => {
+      dialogImage.hidden = true;
+      dialogCaption.textContent = `Photograph unavailable. ${items[current].caption}`;
+    });
+    grid.addEventListener('click', e => {
+      const button = e.target.closest?.('[data-gallery-index]');
+      if (!button) return;
+      opener = button;
+      show(Number(button.dataset.galleryIndex));
+      dialog.showModal();
+    });
+    previousControl.addEventListener('click', () => show(current - 1));
+    nextControl.addEventListener('click', () => show(current + 1));
+    closeControl.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', e => { if (e.target === dialog) dialog.close(); });
+    dialog.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') show(current - 1);
+      if (e.key === 'ArrowRight') show(current + 1);
+    });
+    dialog.addEventListener('close', () => {
+      opener?.focus();
+      opener = null;
+    });
     const show = index => {
       current = (index + items.length) % items.length;
       const image = dialog.querySelector('img');
