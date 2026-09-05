@@ -14,4 +14,13 @@
   <!-- Geometric wildcat profile inspired by the supplied unit artwork. -->
   <g stroke="#171317" stroke-linejoin="round"><path d="M151 249l47-45 1 34c29-31 75-43 116-25l36-17-13 42c18 15 30 36 32 62-25-15-42-15-59-8-14 6-27 20-43 22-25 3-46-20-65-28l-38 15 15-30z" fill="#7b1735" stroke-width="9"/><path d="M205 239c24-18 59-24 91-12-30 2-48 11-64 28l-45 4z" fill="#fff" stroke-width="7"/><path d="M273 264c20-7 44-3 61 10l-28 7-14 20-23-13z" fill="#f8faf8" stroke-width="7"/><path d="M324 270l30 4-18 17z" fill="#171317" stroke-width="5"/><path d="M286 266l7 1" fill="none" stroke="#45c7ff" stroke-width="7" stroke-linecap="round"/><path d="M213 287l-34 27 44-8-20 29 52-25" fill="#4c0d24" stroke-width="8"/></g>
   <circle cx="256" cy="256" r="247" fill="none" stroke="#45c7ff" stroke-width="2" opacity=".8" filter="url(#aura)"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Bethel NJROTC unit mark</title>
+  <desc id="desc">A navy and gold circular placeholder mark for Bethel High School NJROTC</desc>
+  <defs><filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  <circle cx="120" cy="120" r="112" fill="#071526" stroke="#d5ac4e" stroke-width="4"/>
+  <circle cx="120" cy="120" r="92" fill="none" stroke="#2fb8ff" stroke-opacity=".55" stroke-width="2"/>
+  <path d="M120 53v101m-25-70h50m-39-20c0-17 28-17 28 0M82 129c5 34 71 34 76 0M120 154v24" fill="none" stroke="#f5f1e7" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+  <text x="120" y="31" text-anchor="middle" fill="#d5ac4e" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="3">BETHEL</text>
+  <text x="120" y="213" text-anchor="middle" fill="#d5ac4e" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="2">NJROTC</text>
 </svg>
