@@ -68,6 +68,22 @@ Future, expired, and disabled entries are hidden automatically. Use `urgent` onl
 
 ### Gallery
 
+Edit `weather` in `data/site-config.js`. The current values represent Bethel, Connecticut at the community level and should be replaced with the unit’s verified preferred coordinates if needed. The weather page always uses this fixed location; it never geolocates visitors. Open-Meteo requires no frontend API key.
+
+### Navigation
+
+The shared primary and “More” navigation records are in `data/navigation.js`. When adding a page, use a root-relative-to-file path pattern consistent with the existing entries; the script adds the appropriate `../` prefix on interior pages.
+
+### Unit logo and favicon
+
+The unit artwork is stored as the text-based vector file `assets/unit-mark.svg` and referenced by `identity.logo` in `data/site-config.js`. SVG keeps the logo crisp at every size and allows pull-request tools to display its source as text rather than rejecting a binary image. To replace it later, add an approved square SVG and update that configuration value. The circular frame and restrained blue/gold illumination are applied by CSS. Replace `assets/favicon.svg` separately if an approved compact mark is available. Do not stretch or alter official artwork.
+Replace `assets/unit-mark.svg` with an approved unit seal while retaining the filename and a square view box. The included graphic is an original placeholder, not an official unit emblem. Replace `assets/favicon.svg` separately if an approved compact mark is available. Do not stretch or alter the proportions of an official emblem.
+
+### Gallery photos
+
+1. Create `assets/gallery/` if it does not exist.
+2. Add approved, web-optimized images (WebP or JPEG recommended).
+3. Add an entry to `data/gallery.js`:
 Add an approved, web-optimized WebP or JPEG under `assets/gallery/`, then add its record to `data/gallery.js`:
 
 ```js
@@ -90,6 +106,9 @@ Theme colors are defined as custom properties in `styles.css`. Dark mode is the 
 
 Before publishing any update:
 
+- Update shared collections in `data/content.js`, announcements in `data/announcements.js`, and site settings in `data/site-config.js`.
+- Adjust colors and layout in `styles.css`.
+- Update the copyright year or mobile-navigation behavior in `script.js`.
 - [ ] Obtain instructor approval for **all official information**, including dates, schedules, names, ranks, rosters, biographies, team details, awards, history, training requirements, contact details, links, captions, and emergency or wellness resources.
 - [ ] Confirm dates, times, time zones, locations, uniform guidance, prices, deadlines, and event status against the unit's current authoritative source.
 - [ ] Do **not** publish cadet personal contact information, including personal email addresses, phone numbers, home addresses, social-media accounts, or other direct identifiers. Use verified school or unit contact channels only.
@@ -110,4 +129,22 @@ The workflow at `.github/workflows/deploy-pages.yml` deploys the repository root
 3. Under **Build and deployment**, set **Source** to **GitHub Actions**.
 4. Push to `main`, or manually run **Deploy to GitHub Pages** from the Actions tab.
 
+If your default branch has a different name, update the branch listed under `on.push.branches` in the workflow.
+
+## Content sources of truth
+
+Repeated content is rendered into `data-*` mount points by `script.js`; do not copy records into HTML. All record IDs must remain stable, `order` controls display order, and `enabled: false` hides a record. Update `verifiedOn` whenever an authorized reviewer confirms a record. Dates use `YYYY-MM-DD`, and repository-local URLs are always relative to the repository root (the renderer applies each page's `data-base` value for GitHub Pages project deployments).
+
+| Content type | Single source of truth | Mount |
+| --- | --- | --- |
+| Primary and More navigation | `data/navigation.js` | `data-site-header` |
+| Teams and groups | `data/content.js` → `teams` | `data-content="teams"` |
+| Frequently asked questions | `data/content.js` → `faqs` | `data-content="faqs"` |
+| Resource directory | `data/content.js` → `resources` | `data-content="resources"` |
+| Joining guidance | `data/content.js` → `joining` | `data-content="joining"` |
+| Leadership roles | `data/content.js` → `leadership` | `data-content="leadership"` |
+| Weekly schedules | `data/content.js` → `schedules` | `data-content="schedules"` |
+| Events | `data/content.js` → `events` | `data-content="events"` |
+
+The renderer rejects malformed collection records before display and constructs elements with DOM APIs so webmaster text is treated as text, not executable HTML. Local URLs with unsafe schemes or paths are rejected; external collection links must use HTTPS.
 If the deployment branch changes, update `on.push.branches` in `.github/workflows/deploy-pages.yml`. Because internal links and assets use compatible relative paths, the site can be served from a GitHub project Pages subdirectory.
