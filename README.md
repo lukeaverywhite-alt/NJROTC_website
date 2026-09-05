@@ -61,7 +61,7 @@ Edit `weather` in `data/site-config.js`. The current values represent Bethel, Co
 
 ### Navigation
 
-The shared primary and “More” navigation arrays are near the top of `script.js`. When adding a page, use a root-relative-to-file path pattern consistent with the existing entries; the script adds the appropriate `../` prefix on interior pages.
+The shared primary and “More” navigation records are in `data/navigation.js`. When adding a page, use a root-relative-to-file path pattern consistent with the existing entries; the script adds the appropriate `../` prefix on interior pages.
 
 ### Unit logo and favicon
 
@@ -112,7 +112,7 @@ Then open <http://localhost:8000>.
 
 ## Customize the site
 
-- Update announcements, events, staff names, and contact details in `index.html`.
+- Update shared collections in `data/content.js`, announcements in `data/announcements.js`, and site settings in `data/site-config.js`.
 - Adjust colors and layout in `styles.css`.
 - Update the copyright year or mobile-navigation behavior in `script.js`.
 
@@ -128,3 +128,20 @@ The workflow in `.github/workflows/deploy-pages.yml` publishes the repository as
 4. Push to `main`, or manually run **Deploy to GitHub Pages** from the Actions tab.
 
 If your default branch has a different name, update the branch listed under `on.push.branches` in the workflow.
+
+## Content sources of truth
+
+Repeated content is rendered into `data-*` mount points by `script.js`; do not copy records into HTML. All record IDs must remain stable, `order` controls display order, and `enabled: false` hides a record. Update `verifiedOn` whenever an authorized reviewer confirms a record. Dates use `YYYY-MM-DD`, and repository-local URLs are always relative to the repository root (the renderer applies each page's `data-base` value for GitHub Pages project deployments).
+
+| Content type | Single source of truth | Mount |
+| --- | --- | --- |
+| Primary and More navigation | `data/navigation.js` | `data-site-header` |
+| Teams and groups | `data/content.js` → `teams` | `data-content="teams"` |
+| Frequently asked questions | `data/content.js` → `faqs` | `data-content="faqs"` |
+| Resource directory | `data/content.js` → `resources` | `data-content="resources"` |
+| Joining guidance | `data/content.js` → `joining` | `data-content="joining"` |
+| Leadership roles | `data/content.js` → `leadership` | `data-content="leadership"` |
+| Weekly schedules | `data/content.js` → `schedules` | `data-content="schedules"` |
+| Events | `data/content.js` → `events` | `data-content="events"` |
+
+The renderer rejects malformed collection records before display and constructs elements with DOM APIs so webmaster text is treated as text, not executable HTML. Local URLs with unsafe schemes or paths are rejected; external collection links must use HTTPS.
