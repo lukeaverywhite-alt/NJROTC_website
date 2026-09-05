@@ -296,6 +296,7 @@
 
   function renderQuickLinks() {
     document.querySelectorAll('[data-quick-links]').forEach(region => {
+      region.innerHTML = config.quickLinks.map((item, index) => `<a class="quick-link" href="${item.href}"><span>${String(index + 1).padStart(2, '0')}</span><strong>${item.label}</strong><small>${item.description}</small></a>`).join('');
       const cards = (config.quickLinks || []).map((item, index) => {
         const card = safeLink('', item.href, { className: 'nav-card' });
         if (!card) return null;
@@ -308,6 +309,8 @@
 
   function renderAnnouncements() {
     document.querySelectorAll('[data-announcements]').forEach(region => {
+      const items = activeAnnouncements();
+      region.innerHTML = items.length ? items.map(item => `<article class="announcement ${item.level}" role="${item.level === 'urgent' ? 'alert' : 'status'}"><span class="notice-level">${item.level} notice</span><div><strong class="announcement-title">${item.title}</strong><p>${item.message}</p></div>${item.link ? `<a href="${item.link}">Learn more <span aria-hidden="true">→</span></a>` : ''}</article>`).join('') : '';
       const notices = activeAnnouncements().map(item => {
         const level = ['normal', 'important', 'urgent'].includes(item.level) ? item.level : 'normal';
         const article = element('article', { className: `announcement ${level}`, attributes: { role: level === 'urgent' ? 'alert' : 'status' } }, [
@@ -327,6 +330,10 @@
     if (!region) return;
     const event = config.featuredEvent || {};
     if (!event.enabled || !event.target || Number.isNaN(new Date(event.target).getTime())) {
+      region.innerHTML = `<div class="countdown-empty"><strong>Schedule awaiting confirmation</strong><p>Check the Plan of the Week for the latest verified unit schedule.</p></div>`;
+      return;
+    }
+    region.innerHTML = `<div class="countdown-copy"><strong>${event.name}</strong><p>${event.subtitle}</p>${event.location ? `<small>${event.location}</small>` : ''}</div><div class="countdown-units" aria-live="polite">${['days','hours','minutes','seconds'].map(u => `<div><strong data-unit="${u}">00</strong><span>${u}</span></div>`).join('')}</div>`;
       region.replaceChildren(element('div', { className: 'countdown-empty' }, [element('span', { className: 'interface-label', text: 'Featured event' }), element('h2', { text: 'Next milestone awaiting confirmation' }), element('p', { text: 'The unit webmaster can publish a verified countdown from the central configuration file.' })]));
       return;
     }
