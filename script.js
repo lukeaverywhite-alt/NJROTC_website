@@ -2,7 +2,16 @@
   const root = document.documentElement;
   const base = document.body.dataset.base || '';
   const page = document.body.dataset.page || 'home';
-  const config = window.SITE_CONFIG;
+  const rawConfig = window.SITE_CONFIG;
+  const config = rawConfig && typeof rawConfig === 'object' && !Array.isArray(rawConfig) ? rawConfig : {};
+  const identity = config.identity && typeof config.identity === 'object' ? config.identity : {};
+  const siteIdentity = {
+    shortName: typeof identity.shortName === 'string' ? identity.shortName : 'NJROTC',
+    fullName: typeof identity.fullName === 'string' ? identity.fullName : 'NJROTC',
+    location: typeof identity.location === 'string' ? identity.location : '',
+    motto: typeof identity.motto === 'string' ? identity.motto : '',
+    logo: typeof identity.logo === 'string' ? identity.logo : 'assets/unit-mark.svg'
+  };
   const storedTheme = localStorage.getItem('bhsnjrotc-theme');
   const theme = storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : 'dark';
   root.dataset.theme = theme;
@@ -30,10 +39,10 @@
   if (header) {
     header.innerHTML = `
       <a class="skip-link" href="#main-content">Skip to main content</a>
-      <div class="status-strip"><div class="site-width"><span><i></i> Unit information portal</span><span>${config.identity.location}</span></div></div>
+      <div class="status-strip"><div class="site-width"><span><i></i> Unit information portal</span><span>${siteIdentity.location}</span></div></div>
       <nav class="command-nav site-width" aria-label="Primary navigation">
-        <a class="compact-brand" href="${base}index.html" aria-label="${config.identity.shortName} home" title="Return home">
-          <img src="${base}${config.identity.logo}" alt=""><span>${config.identity.shortName}</span>
+        <a class="compact-brand" href="${base}index.html" aria-label="${siteIdentity.shortName} home" title="Return home">
+          <img src="${base}${siteIdentity.logo}" alt=""><span>${siteIdentity.shortName}</span>
         </a>
         <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-menu"><span class="sr-only">Open navigation</span><b></b><b></b><b></b></button>
         <div class="site-menu" id="site-menu">${nav.map(link).join('')}
@@ -44,26 +53,32 @@
   }
 
   const footer = document.querySelector('[data-site-footer]');
-  if (footer) footer.innerHTML = `<div class="site-width footer-grid"><div><strong>${config.identity.fullName}</strong><p>${config.identity.motto}</p></div><nav aria-label="Footer navigation"><a href="${base}pages/information-center.html">Resources</a><a href="${base}pages/wellness.html">Wellness</a><a href="${base}pages/contact.html">Contact</a><a href="https://www.netc.navy.mil/NSTC/NJROTC/" rel="noreferrer" target="_blank">Official NJROTC site <span class="sr-only">(opens in new tab)</span></a></nav></div><div class="site-width footer-legal"><span>&copy; <span data-year></span> ${config.identity.shortName}</span><span>School program information portal</span></div>`;
+  if (footer) footer.innerHTML = `<div class="site-width footer-grid"><div><strong>${siteIdentity.fullName}</strong><p>${siteIdentity.motto}</p></div><nav aria-label="Footer navigation"><a href="${base}pages/information-center.html">Resources</a><a href="${base}pages/wellness.html">Wellness</a><a href="${base}pages/contact.html">Contact</a><a href="https://www.netc.navy.mil/NSTC/NJROTC/" rel="noreferrer" target="_blank">Official NJROTC site <span class="sr-only">(opens in new tab)</span></a></nav></div><div class="site-width footer-legal"><span>&copy; <span data-year></span> ${siteIdentity.shortName}</span><span>School program information portal</span></div>`;
 
   const themeButton = document.querySelector('.theme-toggle');
   themeButton?.addEventListener('click', () => {
     const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
     root.dataset.theme = next;
     localStorage.setItem('bhsnjrotc-theme', next);
-    themeButton.querySelector('span').textContent = next === 'dark' ? '☀' : '☾';
+    const icon = themeButton.querySelector('span');
+    if (icon) icon.textContent = next === 'dark' ? '☀' : '☾';
     themeButton.setAttribute('aria-label', `Switch to ${next === 'dark' ? 'light' : 'dark'} mode`);
   });
 
   const menuButton = document.querySelector('.menu-button');
   const menu = document.querySelector('.site-menu');
-  const closeMenu = () => { menu?.classList.remove('open'); menuButton?.setAttribute('aria-expanded', 'false'); };
-  menuButton?.addEventListener('click', () => {
+  const closeMenu = (restoreFocus = false) => {
+    const wasOpen = menu?.classList.contains('open');
+    menu?.classList.remove('open');
+    menuButton?.setAttribute('aria-expanded', 'false');
+    if (restoreFocus && wasOpen) menuButton?.focus();
+  };
+  if (menuButton && menu) menuButton.addEventListener('click', () => {
     const open = menu.classList.toggle('open');
     menuButton.setAttribute('aria-expanded', String(open));
   });
   menu?.addEventListener('click', e => { if (e.target.matches('a')) closeMenu(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeMenu(); menuButton?.focus(); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(true); });
   document.addEventListener('click', e => { if (menu?.classList.contains('open') && !e.target.closest('.command-nav')) closeMenu(); });
   document.querySelectorAll('[data-year]').forEach(el => { el.textContent = new Date().getFullYear(); });
 
@@ -75,16 +90,20 @@
 
   function activeAnnouncements() {
     const now = new Date(); now.setHours(0, 0, 0, 0);
-    return (window.ANNOUNCEMENTS || []).filter(item => {
-      if (!item.enabled) return false;
+    const announcements = Array.isArray(window.ANNOUNCEMENTS) ? window.ANNOUNCEMENTS : [];
+    return announcements.filter(item => {
+      if (!item || typeof item !== 'object' || !item.enabled || typeof item.title !== 'string' || typeof item.message !== 'string') return false;
       const starts = item.startDate ? new Date(`${item.startDate}T00:00:00`) : null;
       const ends = item.endDate ? new Date(`${item.endDate}T23:59:59`) : null;
       return (!starts || now >= starts) && (!ends || now <= ends);
     });
   }
   function renderQuickLinks() {
+    const quickLinks = Array.isArray(config.quickLinks)
+      ? config.quickLinks.filter(item => item && typeof item === 'object' && typeof item.href === 'string' && typeof item.label === 'string' && typeof item.description === 'string')
+      : [];
     document.querySelectorAll('[data-quick-links]').forEach(region => {
-      region.innerHTML = config.quickLinks.map((item, index) => `<a class="nav-card" href="${item.href}"><small>Quick access</small><b>${String(index + 1).padStart(2, '0')}</b><h3>${item.label}</h3><p>${item.description}</p></a>`).join('');
+      region.innerHTML = quickLinks.map((item, index) => `<a class="nav-card" href="${item.href}"><small>Quick access</small><b>${String(index + 1).padStart(2, '0')}</b><h3>${item.label}</h3><p>${item.description}</p></a>`).join('');
     });
   }
   function renderAnnouncements() {
@@ -96,8 +115,8 @@
   function renderCountdown() {
     const region = document.querySelector('[data-countdown]');
     if (!region) return;
-    const event = config.featuredEvent;
-    if (!event.enabled || !event.target || Number.isNaN(new Date(event.target).getTime())) {
+    const event = config.featuredEvent && typeof config.featuredEvent === 'object' ? config.featuredEvent : {};
+    if (!event.enabled || typeof event.name !== 'string' || typeof event.subtitle !== 'string' || typeof event.target !== 'string' || Number.isNaN(new Date(event.target).getTime())) {
       region.innerHTML = `<div class="countdown-empty"><span class="interface-label">Featured event</span><h2>Next milestone awaiting confirmation</h2><p>The unit webmaster can publish a verified countdown from the central configuration file.</p></div>`;
       return;
     }
@@ -105,47 +124,49 @@
     const update = () => {
       const distance = Math.max(0, new Date(event.target).getTime() - Date.now());
       const values = { days: Math.floor(distance / 86400000), hours: Math.floor(distance / 3600000) % 24, minutes: Math.floor(distance / 60000) % 60, seconds: Math.floor(distance / 1000) % 60 };
-      Object.entries(values).forEach(([unit, value]) => { region.querySelector(`[data-unit="${unit}"]`).textContent = String(value).padStart(2, '0'); });
-      if (!distance) region.querySelector('.countdown-copy p').textContent = 'This event has started or concluded.';
+      Object.entries(values).forEach(([unit, value]) => {
+        const output = region.querySelector(`[data-unit="${unit}"]`);
+        if (output) output.textContent = String(value).padStart(2, '0');
+      });
+      const status = region.querySelector('.countdown-copy p');
+      if (!distance && status) status.textContent = 'This event has started or concluded.';
     };
     update(); setInterval(update, 1000);
   }
   function renderCalendar() {
     const region = document.querySelector('[data-calendar]');
     if (!region) return;
-    if (!config.calendar.embedUrl) {
+    const calendar = config.calendar && typeof config.calendar === 'object' ? config.calendar : {};
+    if (typeof calendar.embedUrl !== 'string' || !calendar.embedUrl) {
       region.innerHTML = `<div class="calendar-empty"><span aria-hidden="true">▦</span><h3>Calendar connection pending</h3><p>Add the unit's verified public Google Calendar embed URL in <code>data/site-config.js</code>.</p></div>`;
       return;
     }
-    region.innerHTML = `<iframe title="Bethel NJROTC calendar" src="${config.calendar.embedUrl}" loading="lazy"></iframe>`;
+    region.innerHTML = `<iframe title="Bethel NJROTC calendar" src="${calendar.embedUrl}" loading="lazy"></iframe>`;
   }
   function renderGallery() {
     const grid = document.querySelector('[data-gallery]');
     if (!grid) return;
-    const items = window.GALLERY_ITEMS || [];
+    const items = Array.isArray(window.GALLERY_ITEMS)
+      ? window.GALLERY_ITEMS.filter(item => item && typeof item === 'object' && typeof item.src === 'string' && typeof item.alt === 'string')
+      : [];
     if (!items.length) { grid.innerHTML = '<div class="gallery-empty"><h2>Unit photography coming soon</h2><p>Verified photographs can be added without changing this page layout.</p></div>'; return; }
     grid.innerHTML = items.map((item, i) => `<button class="gallery-card" type="button" data-gallery-index="${i}"><img src="${base}${item.src}" alt="${item.alt}" loading="lazy"><span>${item.caption || item.alt}</span></button>`).join('');
     const dialog = document.querySelector('#gallery-dialog');
+    if (!dialog) return;
+    const dialogImage = dialog.querySelector('img');
+    const dialogCaption = dialog.querySelector('p');
+    if (!dialogImage || !dialogCaption || typeof dialog.showModal !== 'function') return;
     let current = 0;
-    const show = i => { current = (i + items.length) % items.length; dialog.querySelector('img').src = `${base}${items[current].src}`; dialog.querySelector('img').alt = items[current].alt; dialog.querySelector('p').textContent = items[current].caption || items[current].alt; };
-    grid.addEventListener('click', e => { const button = e.target.closest('[data-gallery-index]'); if (button) { show(Number(button.dataset.galleryIndex)); dialog.showModal(); } });
-    dialog?.addEventListener('click', e => { if (e.target === dialog || e.target.closest('[data-close]')) dialog.close(); if (e.target.closest('[data-prev]')) show(current - 1); if (e.target.closest('[data-next]')) show(current + 1); });
-    dialog?.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') show(current - 1); if (e.key === 'ArrowRight') show(current + 1); });
+    const show = i => { current = (i + items.length) % items.length; dialogImage.src = `${base}${items[current].src}`; dialogImage.alt = items[current].alt; dialogCaption.textContent = items[current].caption || items[current].alt; };
+    grid.addEventListener('click', e => {
+      const button = e.target.closest?.('[data-gallery-index]');
+      if (button) { show(Number(button.dataset.galleryIndex)); dialog.showModal(); }
+    });
+    dialog.addEventListener('click', e => {
+      if (e.target === dialog || e.target.closest?.('[data-close]')) dialog.close();
+      if (e.target.closest?.('[data-prev]')) show(current - 1);
+      if (e.target.closest?.('[data-next]')) show(current + 1);
+    });
+    dialog.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') show(current - 1); if (e.key === 'ArrowRight') show(current + 1); });
   }
 })();
-const menuButton = document.querySelector('.menu-toggle');
-const menu = document.querySelector('.nav-links');
-
-menuButton.addEventListener('click', () => {
-  const isOpen = menu.classList.toggle('open');
-  menuButton.setAttribute('aria-expanded', String(isOpen));
-});
-
-menu.addEventListener('click', (event) => {
-  if (event.target.matches('a')) {
-    menu.classList.remove('open');
-    menuButton.setAttribute('aria-expanded', 'false');
-  }
-});
-
-document.querySelector('#year').textContent = new Date().getFullYear();
