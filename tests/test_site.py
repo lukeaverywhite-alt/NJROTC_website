@@ -506,7 +506,10 @@ initializeProgramVisuals(); if(additions!==2||visuals.some(v=>v.dataset.programM
         self.assertIn("querySelectorAll('[data-photo-visual]')",script)
 
     def test_no_merge_markers(self):
-        for path in [*HTML_FILES,ROOT/'script.js',ROOT/'styles.css',*list((ROOT/'data').glob('*.js'))]:
+        workflow_files=list((ROOT/'.github'/'workflows').glob('*.yml'))+list((ROOT/'.github'/'workflows').glob('*.yaml'))
+        checked=[*HTML_FILES,ROOT/'script.js',ROOT/'weather.js',ROOT/'styles.css',ROOT/'README.md',*list((ROOT/'data').glob('*.js')),*workflow_files]
+        self.assertEqual(len(checked),len(set(checked)))
+        for path in checked:
             self.assertFalse(any(marker in path.read_text() for marker in ('<<<<<<<','=======','>>>>>>>')),path)
 
 if __name__ == '__main__': unittest.main()
