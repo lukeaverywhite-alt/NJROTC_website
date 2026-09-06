@@ -101,13 +101,19 @@ class SiteTests(unittest.TestCase):
         self.assertEqual(root.tag,'{http://www.w3.org/2000/svg}svg')
         self.assertEqual(sum(1 for node in root.iter() if node.tag=='{http://www.w3.org/2000/svg}svg'),1)
 
+    def test_every_page_has_unique_html_ids(self):
+        for path in HTML_FILES:
+            with self.subTest(path=path):
+                parser=self.parse(path)
+                self.assertEqual(len(parser.ids),len(set(parser.ids)),f'{path}: duplicate HTML id')
+
     def test_raw_reference_is_not_deployed_or_referenced(self):
         self.assertFalse((ROOT/'Screenshot_20260905_153726_Gmail.jpg').exists())
         for path in HTML_FILES+[ROOT/'styles.css',ROOT/'script.js',ROOT/'weather.js',*list((ROOT/'data').glob('*.js'))]:
             self.assertNotIn('Screenshot_20260905_153726_Gmail.jpg',path.read_text())
 
     def test_themes_have_complete_semantic_tokens(self):
-        css=(ROOT/'styles.css').read_text(); required={'page-bg','surface-raised','surface-deep','text-primary','text-secondary','text-heading','border','interaction','interaction-active','gold','focus','warning','shadow'}
+        css=(ROOT/'styles.css').read_text(); required={'page-bg','surface-raised','surface-deep','text-primary','text-secondary','text-heading','border','interaction','interaction-active','gold','focus','warning','grid','glow','shadow'}
         dark=re.search(r':root\{(.*?)\}',css,re.S).group(1); light=re.search(r':root\[data-theme="light"\]\{(.*?)\}',css,re.S).group(1)
         for block in (dark,light): self.assertEqual(required,{*re.findall(r'--([\w-]+)\s*:',block)})
 
