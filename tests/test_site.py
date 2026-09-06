@@ -206,6 +206,52 @@ class SiteTests(unittest.TestCase):
         self.assertIn("element(record.url ? 'a' : 'article', 'card')",renderer)
         self.assertNotRegex(renderer,r"element\(['\"](?:button|input|select|textarea)['\"]")
 
+    def test_drill_visual_guides_are_unique_accessible_and_motion_safe(self):
+        expected={
+            'drill-and-ceremony.html': 'drill-overview.svg',
+            'color-guard.html': 'color-guard.svg',
+            'drill-team.html': 'drill-team.svg',
+            'unarmed-drill.html': 'unarmed-drill.svg',
+            'armed-drill.html': 'armed-drill.svg',
+            'unarmed-exhibition.html': 'unarmed-exhibition.svg',
+            'armed-exhibition.html': 'armed-exhibition.svg',
+        }
+        referenced=[]
+        for page,asset in expected.items():
+            with self.subTest(page=page,asset=asset):
+                parser=self.parse(ROOT/'pages'/page)
+                matches=[target for tag,target in parser.refs if tag=='img' and target==f'../assets/drill/{asset}']
+                self.assertEqual(len(matches),1)
+                image_tags=[attrs for tag,attrs in parser.starts if tag=='img' and attrs.get('src')==matches[0]]
+                self.assertEqual(len(image_tags),1)
+                self.assertTrue(image_tags[0].get('alt','').strip())
+                self.assertEqual(image_tags[0].get('loading'),'lazy')
+                self.assertIn('figure',[tag for tag,_ in parser.starts])
+                self.assertIn('figcaption',[tag for tag,_ in parser.starts])
+                referenced.extend(matches)
+
+                svg_path=ROOT/'assets'/'drill'/asset
+                self.assertTrue(svg_path.exists())
+                svg=svg_path.read_text(encoding='utf-8')
+                root=ET.fromstring(svg)
+                ns='{http://www.w3.org/2000/svg}'
+                self.assertEqual(root.tag,f'{ns}svg')
+                titles=root.findall(f'{ns}title'); descriptions=root.findall(f'{ns}desc')
+                self.assertEqual(len(titles),1)
+                self.assertEqual(len(descriptions),1)
+                labelled_by=root.get('aria-labelledby','').split()
+                self.assertEqual(labelled_by,[titles[0].get('id'),descriptions[0].get('id')])
+                self.assertNotIn('TEXT',''.join(root.itertext()))
+                self.assertIn('@keyframes',svg)
+                self.assertIn('prefers-reduced-motion: reduce',svg)
+                ids=re.findall(r'\bid="([^"]+)"',svg)
+                self.assertEqual(len(ids),len(set(ids)))
+        self.assertEqual(len(referenced),len(set(referenced)))
+
+        css=(ROOT/'styles.css').read_text(encoding='utf-8')
+        self.assertRegex(css,r'\.visual-guide\s*\{[^}]*grid-template-columns:',re.S)
+        self.assertRegex(css,r'\.visual-guide img\s*\{[^}]*max-width:\s*100%')
+
     def test_no_merge_markers(self):
         for path in [*HTML_FILES,ROOT/'script.js',ROOT/'styles.css',*list((ROOT/'data').glob('*.js'))]:
             self.assertFalse(any(marker in path.read_text() for marker in ('<<<<<<<','=======','>>>>>>>')),path)
