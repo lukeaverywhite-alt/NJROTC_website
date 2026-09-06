@@ -2,6 +2,7 @@
 import re
 import subprocess
 import unittest
+from collections import Counter
 from difflib import SequenceMatcher
 from html.parser import HTMLParser
 from pathlib import Path
@@ -246,7 +247,10 @@ class SiteTests(unittest.TestCase):
         for path in HTML_FILES:
             with self.subTest(path=path):
                 parser=self.parse(path)
-                self.assertEqual(len(parser.ids),len(set(parser.ids)),f'{path}: duplicate HTML id')
+                counts=Counter(parser.ids)
+                duplicates={html_id: count for html_id,count in counts.items() if count > 1}
+                self.assertEqual(duplicates,{},f'{path}: duplicate HTML ids: {duplicates}')
+                self.assertEqual(counts['main-content'],1,f'{path}: expected one main-content landmark')
 
     def test_raw_reference_is_not_deployed_or_referenced(self):
         self.assertFalse((ROOT/'Screenshot_20260905_153726_Gmail.jpg').exists())
