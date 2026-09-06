@@ -87,10 +87,12 @@ code { color: var(--gold); } dialog { color: var(--text-primary); background: va
 .photo-visual--armed img { object-position:50% 65%; }
 .photo-visual--color-guard img { object-position:50% 52%; }
 .photo-visual--unarmed img { object-position:50% 62%; }
+.photo-visual--drill-overview img { object-position:50% 58%; }
 .photo-visual:hover,.photo-visual:focus-visible,.photo-visual.is-selected { transform:scale(1.012); filter:brightness(1.035); box-shadow:0 20px 52px rgba(0,0,0,.42),0 0 28px color-mix(in srgb,var(--gold) 30%,transparent); }
 .photo-visual:hover img,.photo-visual:focus-visible img,.photo-visual.is-selected img { filter:brightness(1.045); }
 @keyframes photo-border-travel { to { transform:rotate(1turn); } }
 @media(prefers-reduced-motion:reduce) { .photo-visual::before { animation:none; } }
+@media(max-width:760px) { .photo-visual--drill-overview img { object-position:50% 52%; } }
 .season-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
 .event-list { margin:.9rem 0 0; padding:0; list-style:none; counter-reset:event; }
 .event-list li { position:relative; min-height:3rem; padding:.65rem .75rem .65rem 3.2rem; border-top:1px solid var(--border); counter-increment:event; }
