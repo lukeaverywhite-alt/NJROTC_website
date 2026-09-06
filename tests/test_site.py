@@ -14,7 +14,7 @@ APPROVED_HOSTS = {'www.netc.navy.mil', 'www.bethel.k12.ct.us', 'calendar.google.
 
 class DocumentParser(HTMLParser):
     def __init__(self):
-        super().__init__(convert_charrefs=True); self.starts=[]; self.ids=[]; self.refs=[]; self.mounts=[]
+        super().__init__(convert_charrefs=True); self.starts=[]; self.ids=[]; self.refs=[]; self.mounts=[]; self.text=[]
     def handle_decl(self, decl): self.starts.append(('doctype', decl.lower()))
     def handle_starttag(self, tag, attrs):
         values=dict(attrs); self.starts.append((tag, values))
@@ -23,6 +23,7 @@ class DocumentParser(HTMLParser):
             if key in values: self.mounts.append(key)
         target=values.get('href') if tag in ('a','link') else values.get('src') if tag in ('img','script','iframe') else None
         if target: self.refs.append((tag,target))
+    def handle_data(self, data): self.text.append(data)
 
 class SiteTests(unittest.TestCase):
     def parse(self, path):
@@ -61,6 +62,49 @@ class SiteTests(unittest.TestCase):
                 self.assertEqual(parser.ids.count('main-content'),1)
                 self.assertEqual(len(parser.ids),len(set(parser.ids)),f'{path}: duplicate HTML id')
                 self.assertIn(('a','teams.html'),parser.refs)
+
+    def test_drill_program_cards_have_dedicated_content_pages(self):
+        content=(ROOT/'data/content.js').read_text(encoding='utf-8')
+        match=re.search(r"\bdrillPrograms:\s*\[(.*?)\n\s*\]",content,re.S)
+        self.assertIsNotNone(match,'missing drillPrograms collection')
+        records=re.findall(r"\{[^{}]*\}",match.group(1))
+        expected=[
+            ('color-guard','pages/color-guard.html'),
+            ('drill-team','pages/drill-team.html'),
+            ('unarmed-drill','pages/unarmed-drill.html'),
+            ('armed-drill','pages/armed-drill.html'),
+            ('unarmed-exhibition','pages/unarmed-exhibition.html'),
+            ('armed-exhibition','pages/armed-exhibition.html'),
+        ]
+        actual=[]; orders=[]
+        for record in records:
+            self.assertRegex(record,r"\benabled:\s*true\b")
+            actual.append((re.search(r"\bid:\s*'([^']+)'",record).group(1),re.search(r"\burl:\s*'([^']+)'",record).group(1)))
+            orders.append(int(re.search(r"\border:\s*(\d+)",record).group(1)))
+        self.assertEqual(actual,expected)
+        self.assertEqual(orders,sorted(set(orders)))
+
+        teams=re.search(r"\bteams:\s*\[(.*?)\n\s*\]",content,re.S).group(1)
+        self.assertFalse(any(content_id in re.findall(r"\bid:\s*'([^']+)'",teams) for content_id,_ in expected))
+
+        for content_id,url in expected:
+            with self.subTest(id=content_id,url=url):
+                path=ROOT/url
+                self.assertTrue(path.exists(),f'missing drill program page: {path}')
+                parser=self.parse(path); tags=[item[0] for item in parser.starts]
+                for name in ('doctype','html','head','body','main'):
+                    self.assertEqual(tags.count(name),1,f'{path}: expected one {name}')
+                self.assertEqual(parser.mounts.count('data-site-header'),1)
+                self.assertEqual(parser.mounts.count('data-site-footer'),1)
+                self.assertEqual(parser.ids.count('main-content'),1)
+                self.assertIn(('a','drill-and-ceremony.html'),parser.refs)
+                self.assertGreaterEqual(tags.count('h1'),1)
+                visible=' '.join(' '.join(parser.text).split()).lower()
+                self.assertNotIn('more information is coming',visible)
+                self.assertGreater(len(visible),180)
+
+        parent=(ROOT/'pages/drill-and-ceremony.html').read_text(encoding='utf-8')
+        self.assertEqual(len(re.findall(r'data-content=["\']drillPrograms["\']',parent)),1)
 
     def test_every_html_has_one_document_and_shared_regions(self):
         for path in HTML_FILES:
@@ -150,6 +194,63 @@ class SiteTests(unittest.TestCase):
         css=(ROOT/'styles.css').read_text(); required={'page-bg','surface-raised','surface-deep','text-primary','text-secondary','text-heading','border','interaction','interaction-active','gold','focus','warning','grid','glow','shadow'}
         dark=re.search(r':root\{(.*?)\}',css,re.S).group(1); light=re.search(r':root\[data-theme="light"\]\{(.*?)\}',css,re.S).group(1)
         for block in (dark,light): self.assertEqual(required,{*re.findall(r'--([\w-]+)\s*:',block)})
+
+    def test_collection_cards_are_responsive_native_links(self):
+        css=(ROOT/'styles.css').read_text(); script=(ROOT/'script.js').read_text()
+        self.assertRegex(css,r':focus-visible\s*\{[^}]*outline:',':focus-visible styling must remain visible')
+        grid=re.search(r'\.card-grid,\[data-content\][^{]*\{([^}]*)\}',css,re.S).group(1)
+        self.assertIn('repeat(auto-fit,minmax(',grid)
+        card=re.search(r'\.card,.content-card[^}]*\{([^}]*)\}',css,re.S).group(1)
+        self.assertRegex(card,r'min-height:\s*44px')
+        renderer=re.search(r'function renderCollection\(mount\) \{(.*?)\n  \}',script,re.S).group(1)
+        self.assertIn("element(record.url ? 'a' : 'article', 'card')",renderer)
+        self.assertNotRegex(renderer,r"element\(['\"](?:button|input|select|textarea)['\"]")
+
+    def test_drill_visual_guides_are_unique_accessible_and_motion_safe(self):
+        expected={
+            'drill-and-ceremony.html': 'drill-overview.svg',
+            'color-guard.html': 'color-guard.svg',
+            'drill-team.html': 'drill-team.svg',
+            'unarmed-drill.html': 'unarmed-drill.svg',
+            'armed-drill.html': 'armed-drill.svg',
+            'unarmed-exhibition.html': 'unarmed-exhibition.svg',
+            'armed-exhibition.html': 'armed-exhibition.svg',
+        }
+        referenced=[]
+        for page,asset in expected.items():
+            with self.subTest(page=page,asset=asset):
+                parser=self.parse(ROOT/'pages'/page)
+                matches=[target for tag,target in parser.refs if tag=='img' and target==f'../assets/drill/{asset}']
+                self.assertEqual(len(matches),1)
+                image_tags=[attrs for tag,attrs in parser.starts if tag=='img' and attrs.get('src')==matches[0]]
+                self.assertEqual(len(image_tags),1)
+                self.assertTrue(image_tags[0].get('alt','').strip())
+                self.assertEqual(image_tags[0].get('loading'),'lazy')
+                self.assertIn('figure',[tag for tag,_ in parser.starts])
+                self.assertIn('figcaption',[tag for tag,_ in parser.starts])
+                referenced.extend(matches)
+
+                svg_path=ROOT/'assets'/'drill'/asset
+                self.assertTrue(svg_path.exists())
+                svg=svg_path.read_text(encoding='utf-8')
+                root=ET.fromstring(svg)
+                ns='{http://www.w3.org/2000/svg}'
+                self.assertEqual(root.tag,f'{ns}svg')
+                titles=root.findall(f'{ns}title'); descriptions=root.findall(f'{ns}desc')
+                self.assertEqual(len(titles),1)
+                self.assertEqual(len(descriptions),1)
+                labelled_by=root.get('aria-labelledby','').split()
+                self.assertEqual(labelled_by,[titles[0].get('id'),descriptions[0].get('id')])
+                self.assertNotIn('TEXT',''.join(root.itertext()))
+                self.assertIn('@keyframes',svg)
+                self.assertIn('prefers-reduced-motion: reduce',svg)
+                ids=re.findall(r'\bid="([^"]+)"',svg)
+                self.assertEqual(len(ids),len(set(ids)))
+        self.assertEqual(len(referenced),len(set(referenced)))
+
+        css=(ROOT/'styles.css').read_text(encoding='utf-8')
+        self.assertRegex(css,r'\.visual-guide\s*\{[^}]*grid-template-columns:',re.S)
+        self.assertRegex(css,r'\.visual-guide img\s*\{[^}]*max-width:\s*100%')
 
     def test_no_merge_markers(self):
         for path in [*HTML_FILES,ROOT/'script.js',ROOT/'styles.css',*list((ROOT/'data').glob('*.js'))]:
