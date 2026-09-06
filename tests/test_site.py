@@ -270,6 +270,51 @@ class SiteTests(unittest.TestCase):
         self.assertNotRegex(renderer,r"element\(['\"](?:button|input|select|textarea)['\"]")
 
     def test_drill_visual_guides_are_unique_accessible_and_motion_safe(self):
+        expected={
+            'drill-and-ceremony.html': 'drill-overview.svg',
+            'color-guard.html': 'color-guard.jpg',
+            'drill-team.html': 'drill-team.svg',
+            'unarmed-drill.html': 'unarmed-drill.jpg',
+            'armed-drill.html': 'armed-drill.jpg',
+            'unarmed-exhibition.html': 'unarmed-exhibition.svg',
+            'armed-exhibition.html': 'armed-exhibition.svg',
+        }
+        referenced=[]
+        for page,asset in expected.items():
+            with self.subTest(page=page,asset=asset):
+                parser=self.parse(ROOT/'pages'/page)
+                matches=[target for tag,target in parser.refs if tag=='img' and target==f'../assets/drill/{asset}']
+                self.assertEqual(len(matches),1)
+                image_tags=[attrs for tag,attrs in parser.starts if tag=='img' and attrs.get('src')==matches[0]]
+                self.assertEqual(len(image_tags),1)
+                self.assertTrue(image_tags[0].get('alt','').strip())
+                self.assertEqual(image_tags[0].get('loading'),'lazy')
+                self.assertIn('figure',[tag for tag,_ in parser.starts])
+                self.assertIn('figcaption',[tag for tag,_ in parser.starts])
+                referenced.extend(matches)
+
+                if not asset.endswith('.svg'): continue
+                svg_path=ROOT/'assets'/'drill'/asset
+                self.assertTrue(svg_path.exists())
+                svg=svg_path.read_text(encoding='utf-8')
+                root=ET.fromstring(svg)
+                ns='{http://www.w3.org/2000/svg}'
+                self.assertEqual(root.tag,f'{ns}svg')
+                titles=root.findall(f'{ns}title'); descriptions=root.findall(f'{ns}desc')
+                self.assertEqual(len(titles),1)
+                self.assertEqual(len(descriptions),1)
+                labelled_by=root.get('aria-labelledby','').split()
+                self.assertEqual(labelled_by,[titles[0].get('id'),descriptions[0].get('id')])
+                self.assertNotIn('TEXT',''.join(root.itertext()))
+                self.assertIn('@keyframes',svg)
+                self.assertIn('prefers-reduced-motion: reduce',svg)
+                ids=re.findall(r'\bid="([^"]+)"',svg)
+                self.assertEqual(len(ids),len(set(ids)))
+        self.assertEqual(len(referenced),len(set(referenced)))
+
+        css=(ROOT/'styles.css').read_text(encoding='utf-8')
+        self.assertRegex(css,r'\.visual-guide\s*\{[^}]*grid-template-columns:',re.S)
+        self.assertRegex(css,r'\.visual-guide img\s*\{[^}]*max-width:\s*100%')
         drill_pages = {'drill-and-ceremony', 'color-guard', 'drill-team', 'unarmed-drill', 'armed-drill', 'unarmed-exhibition', 'armed-exhibition'}
         for name in drill_pages:
             source = (ROOT / 'pages' / f'{name}.html').read_text()
@@ -361,15 +406,30 @@ class SiteTests(unittest.TestCase):
             for extension in ('*.png','*.jpg','*.jpeg','*.webp','*.gif')
             for path in (ROOT/'assets/drill').glob(extension)
         }
-        self.assertEqual(raster_assets,{
-            'armed-drill.jpg',
-            'color-guard.jpg',
-            'drill-overview.jpg',
-            'unarmed-drill.jpg',
-        })
+        self.assertEqual(raster_assets,{'armed-drill.jpg','color-guard.jpg','unarmed-drill.jpg'})
+
+    def test_drill_photos_have_approved_content_and_interactions(self):
+        expected={
+            'armed-drill': ('armed-drill.jpg','Cadet Gavin Kopreski commands the armed platoon as Cadet Toshan Bhattacharya serves as the unit guidon during the Brewster Drill Meet in Brewster, New York, on December 13, 2025.'),
+            'color-guard': ('color-guard.jpg','Cadets Michael Connors, Audrey Steele, Luke White, and Nolan Shaw present the colors while marching for the Tunnel to Towers Foundation at the Bethel High School track in Bethel, Connecticut, on June 28, 2026.'),
+            'unarmed-drill': ('unarmed-drill.jpg','Cadet Gavin Kopreski commands the unarmed platoon during the Washington Drill Meet in Washingtonville, New York, on November 8, 2025.'),
+        }
+        for page,(asset,caption) in expected.items():
+            parser=self.parse(ROOT/'pages'/f'{page}.html')
+            photos=[attrs for tag,attrs in parser.starts if tag=='img' and attrs.get('src')==f'../assets/drill/{asset}']
+            self.assertEqual(len(photos),1,page); self.assertTrue(photos[0].get('alt','').strip())
+            figures=[attrs for tag,attrs in parser.starts if tag=='figure' and 'photo-visual' in attrs.get('class','').split()]
+            self.assertEqual(len(figures),1,page); self.assertEqual(figures[0].get('tabindex'),'0'); self.assertIn('data-photo-visual',figures[0])
+            self.assertIn(caption,' '.join(self.parse(ROOT/'pages'/f'{page}.html').text))
+        css=(ROOT/'styles.css').read_text(); script=(ROOT/'script.js').read_text()
+        self.assertIn('12s linear infinite',css); self.assertIn('.photo-visual.is-selected',css)
+        self.assertIn("querySelectorAll('[data-photo-visual]')",script)
 
     def test_no_merge_markers(self):
-        for path in [*HTML_FILES,ROOT/'script.js',ROOT/'styles.css',*list((ROOT/'data').glob('*.js'))]:
+        workflow_files=list((ROOT/'.github'/'workflows').glob('*.yml'))+list((ROOT/'.github'/'workflows').glob('*.yaml'))
+        checked=[*HTML_FILES,ROOT/'script.js',ROOT/'weather.js',ROOT/'styles.css',ROOT/'README.md',*list((ROOT/'data').glob('*.js')),*workflow_files]
+        self.assertEqual(len(checked),len(set(checked)))
+        for path in checked:
             self.assertFalse(any(marker in path.read_text() for marker in ('<<<<<<<','=======','>>>>>>>')),path)
 
 if __name__ == '__main__': unittest.main()

@@ -117,12 +117,30 @@
   function renderCurrentYear() { document.querySelectorAll('[data-current-year]').forEach(node => { node.textContent = String(new Date().getFullYear()); }); }
 
 
+  function initializePhotoVisuals() {
+    document.querySelectorAll('[data-photo-visual]').forEach(visual => {
+      if (visual.dataset.photoInteractionInitialized) return;
+      visual.dataset.photoInteractionInitialized = 'true';
+      const toggle = () => {
+        const selected = !visual.classList.contains('is-selected');
+        document.querySelectorAll('[data-photo-visual].is-selected').forEach(photo => photo.classList.remove('is-selected'));
+        visual.classList.toggle('is-selected', selected);
+        document.querySelectorAll('[data-photo-visual]').forEach(photo => photo.setAttribute('aria-pressed',String(photo.classList.contains('is-selected'))));
+      };
+      visual.addEventListener('click', event => { event.stopPropagation(); toggle(); });
+      visual.addEventListener('keydown', event => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault(); toggle();
+      });
+    });
+  }
+
   function initialize() {
     renderHeader(); initializeTheme(); renderFooter(); renderAnnouncements(); renderQuickLinks(); renderCountdown(); renderCalendar(); renderGallery(); renderCurrentYear();
     document.querySelectorAll('[data-content]').forEach(renderCollection);
     if (document.documentElement.dataset.siteListenersBound) return;
     document.documentElement.dataset.siteListenersBound = 'true';
-    document.addEventListener('click', event => { if (!event.target.closest('.nav-group')) closeDropdowns(); });
+    document.addEventListener('click', event => { if (!event.target.closest('.nav-group')) closeDropdowns(); if (!event.target.closest('[data-photo-visual]')) document.querySelectorAll('[data-photo-visual].is-selected').forEach(photo => photo.classList.remove('is-selected')); });
     document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeDropdowns(); closeMobile(); document.querySelector('.menu-button')?.focus(); } });
     document.querySelector('.site-nav')?.addEventListener('focusout', event => { const group = event.target.closest('.nav-group'); if (group && !group.contains(event.relatedTarget)) group.querySelector('.nav-trigger')?.setAttribute('aria-expanded', 'false'); });
   }
