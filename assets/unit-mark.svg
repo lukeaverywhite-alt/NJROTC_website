@@ -1,25 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="unit-title unit-desc">
-  <title id="unit-title">Bethel NJROTC unit mark</title>
-  <desc id="unit-desc">Navy and gold circular Bethel NJROTC emblem with a gold anchor and maroon and white wildcat.</desc>
+  <title id="unit-title">Bethel High School NJROTC wildcat and anchor emblem</title>
+  <desc id="unit-desc">A symmetrical gold wildcat above a naval anchor within a crisp navy command-style shield.</desc>
   <defs>
-    <linearGradient id="unit-gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f2d780"/><stop offset="1" stop-color="#ad7b22"/></linearGradient>
-    <path id="unit-top-arc" d="M92 250a164 164 0 0 1 328 0"/>
-    <path id="unit-bottom-arc" d="M82 287a180 180 0 0 0 348 0"/>
-    <mask id="unit-field-mask"><circle cx="256" cy="256" r="214" fill="white"/></mask>
-    <filter id="unit-shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity=".35"/></filter>
+    <linearGradient id="navy" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#102d50"/><stop offset="1" stop-color="#04101f"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0a8"/><stop offset=".42" stop-color="#e8be55"/><stop offset="1" stop-color="#a97216"/></linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
-  <circle cx="256" cy="256" r="246" fill="#07172d" stroke="url(#unit-gold)" stroke-width="12"/>
-  <circle cx="256" cy="256" r="216" fill="#102845" stroke="#d4ad4d" stroke-width="3" mask="url(#unit-field-mask)"/>
-  <g fill="#f8f4e8" font-family="system-ui, sans-serif" font-weight="800" text-anchor="middle">
-    <text font-size="54" letter-spacing="9"><textPath href="#unit-top-arc" startOffset="50%">BETHEL</textPath></text>
-    <text font-size="46" letter-spacing="8"><textPath href="#unit-bottom-arc" startOffset="50%">NJROTC</textPath></text>
+  <!-- The shield and inner rings remain separate from the subject, keeping every edge legible at small sizes. -->
+  <path d="M256 14 464 88v151c0 126-80 214-208 259C128 453 48 365 48 239V88z" fill="#020a14" stroke="url(#gold)" stroke-width="10"/>
+  <path d="M256 35 443 101v138c0 112-69 191-187 235C138 430 69 351 69 239V101z" fill="url(#navy)" stroke="#6f5724" stroke-width="2"/>
+  <path d="M91 119 256 61l165 58M91 389h330" fill="none" stroke="#e8be55" stroke-opacity=".35" stroke-width="2"/>
+  <g fill="#e8be55" font-family="Arial,Helvetica,sans-serif" font-weight="700" text-anchor="middle" letter-spacing="7">
+    <text x="256" y="112" font-size="30">BETHEL</text><text x="256" y="446" font-size="25">NJROTC</text>
   </g>
-  <g fill="none" stroke="url(#unit-gold)" stroke-linecap="round" stroke-linejoin="round" filter="url(#unit-shadow)">
-    <circle cx="256" cy="192" r="22" stroke-width="12"/><path d="M256 214v168M212 242h88M170 326c18 54 54 74 86 74s68-20 86-74M170 326l-18 25m18-25 27 8m145-8 18 25m-18-25-27 8" stroke-width="14"/>
+  <!-- Naval anchor: a clean silhouette behind, but not intersecting, the wildcat face. -->
+  <g fill="none" stroke="url(#gold)" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+    <circle cx="256" cy="156" r="18" stroke-width="10"/><path d="M256 174v172M215 202h82" stroke-width="11"/>
+    <path d="M160 311c17 64 52 91 96 91s79-27 96-91M160 311l-17 29 31-8m178-21 17 29-31-8" stroke-width="13"/>
   </g>
-  <g stroke="#24131a" stroke-linejoin="round" filter="url(#unit-shadow)">
-    <path d="M151 251l45-44 3 34c30-30 76-42 116-24l37-17-14 41c20 18 29 38 31 61-25-14-43-14-60-7-17 8-28 20-44 22-25 3-45-20-64-27l-40 14 17-31z" fill="#7c1e3e" stroke-width="8"/>
-    <path d="M201 242c26-20 62-25 95-12-28 2-49 11-64 28l-47 4zm70 25c21-8 45-3 62 10l-28 7-14 20-24-14z" fill="#fff" stroke-width="6"/>
-    <path d="m324 273 31 4-19 17z" fill="#24131a" stroke-width="4"/><circle cx="289" cy="269" r="4" fill="#d5ad52" stroke="none"/>
+  <!-- Original, geometric wildcat: balanced ears, muzzle, eyes and cheek planes. -->
+  <g stroke="#e8be55" stroke-linejoin="round">
+    <path d="m158 170 53 23 45-17 45 17 53-23-15 67c9 30 3 67-18 92l-65 47-65-47c-21-25-27-62-18-92z" fill="#071728" stroke-width="7"/>
+    <path d="m174 184 39 23-30 27zm164 0-39 23 30 27z" fill="#e8be55" stroke-width="4"/>
+    <path d="m190 230 50 12-23 29-37-18zm132 0-50 12 23 29 37-18z" fill="#d8dee7" stroke-width="4"/>
+    <path d="m196 247 31 6-13 10zm120 0-31 6 13 10z" fill="#e8be55" stroke="none"/>
+    <path d="m256 244-24 58 24 20 24-20z" fill="#102d50" stroke-width="5"/>
+    <path d="m225 300 31 15 31-15-9 35-22 20-22-20z" fill="#e8be55" stroke-width="5"/>
+    <path d="m240 316 16 7 16-7-5 14h-22z" fill="#030a13" stroke="none"/>
+    <path d="M180 280h47m-55 18h57m103-18h-47m55 18h-57" fill="none" stroke-width="4" stroke-linecap="round"/>
   </g>
+  <circle cx="256" cy="256" r="224" fill="none" stroke="#f5d77e" stroke-opacity=".18" stroke-width="2" stroke-dasharray="3 13"/>
 </svg>
