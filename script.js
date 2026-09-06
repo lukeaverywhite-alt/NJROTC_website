@@ -34,6 +34,11 @@
     return node;
   }
 
+  function replaceMountContent(mount, fragment, rendererName) {
+    mount.replaceChildren(fragment);
+    mount.dataset.renderedBy = rendererName;
+  }
+
   const ordered = records => (Array.isArray(records) ? records : []).filter(item => item && item.enabled !== false).slice().sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
 
   function renderHeader() {
@@ -63,7 +68,7 @@
     const mobile = element('button', 'icon-button menu-button', 'Menu'); mobile.type = 'button'; mobile.setAttribute('aria-controls', nav.id); mobile.setAttribute('aria-expanded', 'false');
     mobile.addEventListener('click', () => { const open = document.body.classList.toggle('menu-open'); mobile.setAttribute('aria-expanded', String(open)); if (open) nav.querySelector('a,button')?.focus(); });
     nav.addEventListener('click', e => { if (e.target.closest('a')) closeMobile(mobile); });
-    controls.append(theme, mobile); bar.append(nav, controls); mount.append(bar);
+    controls.append(theme, mobile); bar.append(nav, controls); const fragment = document.createDocumentFragment(); fragment.append(bar); replaceMountContent(mount, fragment, 'header');
   }
 
   function closeDropdowns(except) { document.querySelectorAll('.nav-trigger').forEach(button => { if (button !== except) button.setAttribute('aria-expanded', 'false'); }); }
@@ -73,7 +78,7 @@
     let saved = null;
     try { saved = localStorage.getItem('bhsnjrotc-theme'); } catch (_) { /* Storage may be unavailable. */ }
     root.dataset.theme = saved === 'light' || saved === 'dark' ? saved : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-    const button = document.querySelector('[data-theme-toggle]');
+    const button = document.querySelector('[data-theme-toggle]'); if (!button) return;
     const update = () => { const dark = root.dataset.theme === 'dark'; button.textContent = dark ? '☀' : '☾'; button.setAttribute('aria-label', dark ? 'Use light theme' : 'Use dark theme'); button.title = button.getAttribute('aria-label'); button.setAttribute('aria-pressed', String(!dark)); };
     button.addEventListener('click', () => { root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark'; try { localStorage.setItem('bhsnjrotc-theme', root.dataset.theme); } catch (_) { /* Theme still works for this page. */ } update(); }); update();
   }
@@ -81,33 +86,41 @@
   function renderFooter() {
     const mount = document.querySelector('[data-site-footer]'); if (!mount) return;
     const wrap = element('div', 'footer-inner site-width'); wrap.append(element('p', '', `© ${new Date().getFullYear()} ${identity.fullName || 'Bethel High School NJROTC'}`));
-    const contact = link('Contact', 'pages/contact.html'); if (contact) wrap.append(contact); mount.append(wrap);
+    const contact = link('Contact', 'pages/contact.html'); if (contact) wrap.append(contact); const fragment = document.createDocumentFragment(); fragment.append(wrap); replaceMountContent(mount, fragment, 'footer');
   }
 
   function renderCollection(mount) {
-    const records = ordered(content[mount.dataset.content]);
-    if (!records.length) { mount.append(element('p', 'empty-state', 'Verified information is not available yet.')); return; }
+    const unique = new Map();
+    ordered(content[mount.dataset.content]).forEach(record => { if (record.id && !unique.has(record.id)) unique.set(record.id, record); });
+    const records = ordered([...unique.values()]);
+    const fragment = document.createDocumentFragment();
+    if (!records.length) fragment.append(element('p', 'empty-state', 'Verified information is not available yet.'));
     records.slice(0, Number(mount.dataset.limit) || records.length).forEach(record => {
-      const card = element(record.url ? 'a' : 'article', 'card'); if (record.url) { const url = safeUrl(record.url); if (!url) return; card.href = url; }
-      card.append(element('p', 'eyebrow', record.category || ''), element('h2', '', record.title), element('p', '', record.description)); mount.append(card);
+      const card = element(record.url ? 'a' : 'article', 'card');
+      if (record.url) { const url = safeUrl(record.url); if (!url) return; card.href = url; }
+      card.dataset.contentId = record.id;
+      card.append(element('p', 'eyebrow', record.category || ''), element('h2', '', record.title), element('p', '', record.description)); fragment.append(card);
     });
+    replaceMountContent(mount, fragment, 'collection');
   }
 
   function renderAnnouncements() {
     const today = new Date().toISOString().slice(0, 10);
     const records = (window.ANNOUNCEMENTS || []).filter(a => a.enabled !== false && (!a.startDate || a.startDate <= today) && (!a.endDate || a.endDate >= today) && a.message && !/^confirmed announcements will/i.test(a.message));
-    document.querySelectorAll('[data-announcements]').forEach(mount => records.forEach(record => { const note = element('aside', `announcement ${record.level || 'normal'}`); note.append(element('strong', '', record.title), element('p', '', record.message)); if (record.link) { const more = link('Details', record.link); if (more) note.append(more); } mount.append(note); }));
+    document.querySelectorAll('[data-announcements]').forEach(mount => { const fragment=document.createDocumentFragment(); records.forEach(record => { const note=element('aside',`announcement ${record.level || 'normal'}`); note.append(element('strong','',record.title),element('p','',record.message)); if(record.link){const more=link('Details',record.link);if(more)note.append(more);} fragment.append(note); }); replaceMountContent(mount,fragment,'announcements'); });
   }
 
-  function renderQuickLinks() { document.querySelectorAll('[data-quick-links]').forEach(mount => (config.quickLinks || []).forEach(item => { const node = link(item.label, item.href, 'card'); if (node) { node.append(element('span', '', item.description)); mount.append(node); } })); }
-  function renderCountdown() { document.querySelectorAll('[data-countdown]').forEach(mount => { const event = config.featuredEvent; if (!event?.enabled || !event.target) { mount.hidden = true; return; } const days = Math.max(0, Math.ceil((new Date(event.target) - Date.now()) / 86400000)); mount.append(element('strong', '', `${days} days — ${event.name}`), element('p', '', event.subtitle || '')); }); }
-  function renderCalendar() { document.querySelectorAll('[data-calendar]').forEach(mount => { const url = safeUrl(config.calendar?.embedUrl || ''); if (!url) { mount.append(element('p', 'empty-state', 'The verified public unit calendar is not available yet.')); return; } const frame = element('iframe'); frame.src = url; frame.title = 'Bethel NJROTC calendar'; frame.loading = 'lazy'; mount.append(frame); }); }
-  function renderGallery() { document.querySelectorAll('[data-gallery]').forEach(mount => { const items = window.GALLERY_ITEMS || []; if (!items.length) { mount.append(element('p', 'empty-state', 'No approved gallery images are available yet.')); return; } items.forEach(item => { const src = safeUrl(item.src); if (!src) return; const figure = element('figure', 'gallery-item'); const image = element('img'); image.src = src; image.alt = item.alt || ''; image.loading = 'lazy'; figure.append(image, element('figcaption', '', item.caption || '')); mount.append(figure); }); }); }
+  function renderQuickLinks() { document.querySelectorAll('[data-quick-links]').forEach(mount => { const fragment=document.createDocumentFragment(); (config.quickLinks || []).forEach(item => { const node=link(item.label,item.href,'card'); if(node){node.append(element('span','',item.description));fragment.append(node);} }); replaceMountContent(mount,fragment,'quick-links'); }); }
+  function renderCountdown() { document.querySelectorAll('[data-countdown]').forEach(mount => { const fragment=document.createDocumentFragment(); const event=config.featuredEvent; mount.hidden=!event?.enabled || !event.target; if(!mount.hidden){const days=Math.max(0,Math.ceil((new Date(event.target)-Date.now())/86400000));fragment.append(element('strong','',`${days} days — ${event.name}`),element('p','',event.subtitle || ''));} replaceMountContent(mount,fragment,'countdown'); }); }
+  function renderCalendar() { document.querySelectorAll('[data-calendar]').forEach(mount => { const fragment=document.createDocumentFragment(); const url=safeUrl(config.calendar?.embedUrl || ''); if(!url)fragment.append(element('p','empty-state','The verified public unit calendar is not available yet.')); else {const frame=element('iframe');frame.src=url;frame.title='Bethel NJROTC calendar';frame.loading='lazy';fragment.append(frame);} replaceMountContent(mount,fragment,'calendar'); }); }
+  function renderGallery() { document.querySelectorAll('[data-gallery]').forEach(mount => { const fragment=document.createDocumentFragment(); const items=window.GALLERY_ITEMS || []; if(!items.length)fragment.append(element('p','empty-state','No approved gallery images are available yet.')); items.forEach(item => {const src=safeUrl(item.src);if(!src)return;const figure=element('figure','gallery-item');const image=element('img');image.src=src;image.alt=item.alt || '';image.loading='lazy';figure.append(image,element('figcaption','',item.caption || ''));fragment.append(figure);}); replaceMountContent(mount,fragment,'gallery'); }); }
   function renderCurrentYear() { document.querySelectorAll('[data-current-year]').forEach(node => { node.textContent = String(new Date().getFullYear()); }); }
 
   function initialize() {
     renderHeader(); initializeTheme(); renderFooter(); renderAnnouncements(); renderQuickLinks(); renderCountdown(); renderCalendar(); renderGallery(); renderCurrentYear();
     document.querySelectorAll('[data-content]').forEach(renderCollection);
+    if (document.documentElement.dataset.siteListenersBound) return;
+    document.documentElement.dataset.siteListenersBound = 'true';
     document.addEventListener('click', event => { if (!event.target.closest('.nav-group')) closeDropdowns(); });
     document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeDropdowns(); closeMobile(); document.querySelector('.menu-button')?.focus(); } });
     document.querySelector('.site-nav')?.addEventListener('focusout', event => { const group = event.target.closest('.nav-group'); if (group && !group.contains(event.relatedTarget)) group.querySelector('.nav-trigger')?.setAttribute('aria-expanded', 'false'); });
