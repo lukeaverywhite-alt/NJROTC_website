@@ -9,6 +9,14 @@ window.SITE_CONTENT = {
     { id: 'academics', title: 'Academic Teams', description: 'Put classroom knowledge to work in collaborative, fast-paced competitions.', url: 'pages/academic-teams.html', category: 'Knowledge', order: 30, enabled: true, verifiedOn: '2026-09-05' },
     { id: 'service', title: 'Community Service', description: 'Make a meaningful difference through projects in Bethel and nearby communities.', url: 'pages/community-service.html', category: 'Citizenship', order: 40, enabled: true, verifiedOn: '2026-09-05' }
   ],
+  drillPrograms: [
+    { id: 'color-guard', title: 'Color Guard', description: 'Represent the unit with dignity, precision, and respect for the colors at ceremonies and events.', url: 'pages/color-guard.html', category: 'Ceremonial drill', order: 10, enabled: true, verifiedOn: '2026-09-05' },
+    { id: 'drill-team', title: 'Drill Team', description: 'Build teamwork, leadership, command presence, and precision through coordinated competition drill.', url: 'pages/drill-team.html', category: 'Competition drill', order: 20, enabled: true, verifiedOn: '2026-09-05' },
+    { id: 'unarmed-drill', title: 'Unarmed Drill', description: 'Practice regulation formations, marching, facing movements, cadence, alignment, and commands without rifles.', url: 'pages/unarmed-drill.html', category: 'Regulation drill', order: 30, enabled: true, verifiedOn: '2026-09-05' },
+    { id: 'armed-drill', title: 'Armed Drill', description: 'Perform regulation drill and approved manual-of-arms movements with the unit’s demilitarized drill rifles.', url: 'pages/armed-drill.html', category: 'Regulation drill', order: 40, enabled: true, verifiedOn: '2026-09-05' },
+    { id: 'unarmed-exhibition', title: 'Unarmed Exhibition', description: 'Perform original commander-developed routines emphasizing creativity and synchronized execution without rifles.', url: 'pages/unarmed-exhibition.html', category: 'Exhibition drill', order: 50, enabled: true, verifiedOn: '2026-09-05' },
+    { id: 'armed-exhibition', title: 'Armed Exhibition', description: 'Combine precision, creativity, and safe rifle handling in original routines governed by competition rules.', url: 'pages/armed-exhibition.html', category: 'Exhibition drill', order: 60, enabled: true, verifiedOn: '2026-09-05' }
+  ],
   faqs: [
     { id: 'service-obligation', title: 'Does joining NJROTC create a military service obligation?', description: 'No. NJROTC is a citizenship and leadership program and participation does not create a military service obligation.', category: 'Joining', order: 10, enabled: true, verifiedOn: '2026-09-05' },
     { id: 'activities', title: 'What activities are represented on this website?', description: 'The current unit content identifies drill and ceremony, athletics and fitness, academic teams, and community service.', category: 'Activities', order: 20, enabled: true, verifiedOn: '2026-09-05' },
