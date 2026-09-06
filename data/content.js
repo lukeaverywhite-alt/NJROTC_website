@@ -5,7 +5,7 @@
 window.SITE_CONTENT = {
   teams: [
     { id: 'drill', title: 'Drill & Ceremony', description: 'Develop precision, discipline, and teamwork through armed and unarmed drill.', url: 'pages/drill-and-ceremony.html', category: 'Precision', order: 10, enabled: true, verifiedOn: '2026-09-05' },
-    { id: 'fitness', title: 'Athletics & Fitness', description: 'Build healthy habits and resilience through inclusive physical challenges.', url: 'pages/athletics-and-fitness.html', category: 'Readiness', order: 20, enabled: true, verifiedOn: '2026-09-05' },
+    { id: 'fitness', title: 'Fitness Competitions', description: 'Build readiness and resilience through PT assessments and team competition.', url: 'pages/athletics-and-fitness.html', category: 'Readiness', order: 20, enabled: true, verifiedOn: '2026-09-06' },
     { id: 'academics', title: 'Academic Teams', description: 'Put classroom knowledge to work in collaborative, fast-paced competitions.', url: 'pages/academic-teams.html', category: 'Knowledge', order: 30, enabled: true, verifiedOn: '2026-09-05' },
     { id: 'service', title: 'Community Service', description: 'Make a meaningful difference through projects in Bethel and nearby communities.', url: 'pages/community-service.html', category: 'Citizenship', order: 40, enabled: true, verifiedOn: '2026-09-05' }
   ],
@@ -16,6 +16,11 @@ window.SITE_CONTENT = {
     { id: 'armed-drill', title: 'Armed Drill', description: 'Perform regulation drill and approved manual-of-arms movements with the unit’s demilitarized drill rifles.', url: 'pages/armed-drill.html', category: 'Regulation drill', order: 40, enabled: true, verifiedOn: '2026-09-05' },
     { id: 'unarmed-exhibition', title: 'Unarmed Exhibition', description: 'Perform original commander-developed routines emphasizing creativity and synchronized execution without rifles.', url: 'pages/unarmed-exhibition.html', category: 'Exhibition drill', order: 50, enabled: true, verifiedOn: '2026-09-05' },
     { id: 'armed-exhibition', title: 'Armed Exhibition', description: 'Combine precision, creativity, and safe rifle handling in original routines governed by competition rules.', url: 'pages/armed-exhibition.html', category: 'Exhibition drill', order: 60, enabled: true, verifiedOn: '2026-09-05' }
+  ],
+  fitnessPrograms: [
+    { id: 'pt-team', title: 'PT Team', description: 'Represent the unit in fast-paced physical events held alongside drill meets.', url: 'pages/pt-team.html', category: 'Drill meet competition', order: 10, enabled: true, verifiedOn: '2026-09-06' },
+    { id: 'physical-fitness-assessments', title: 'Physical Fitness Assessments', description: 'Measure individual progress through the unit’s fall and spring PT assessments.', url: 'pages/physical-fitness-assessments.html', category: 'Seasonal readiness', order: 20, enabled: true, verifiedOn: '2026-09-06' },
+    { id: 'klondike-derby', title: 'Klondike Derby', description: 'Race through a winter team course that combines strength, speed, coordination, and marksmanship.', url: 'pages/klondike-derby.html', category: 'Winter competition', order: 30, enabled: true, verifiedOn: '2026-09-06' }
   ],
   faqs: [
     { id: 'service-obligation', title: 'Does joining NJROTC create a military service obligation?', description: 'No. NJROTC is a citizenship and leadership program and participation does not create a military service obligation.', category: 'Joining', order: 10, enabled: true, verifiedOn: '2026-09-05' },
