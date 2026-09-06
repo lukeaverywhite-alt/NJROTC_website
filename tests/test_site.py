@@ -2,6 +2,8 @@
 import re
 import subprocess
 import unittest
+import hashlib
+from difflib import SequenceMatcher
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -251,6 +253,93 @@ class SiteTests(unittest.TestCase):
         css=(ROOT/'styles.css').read_text(encoding='utf-8')
         self.assertRegex(css,r'\.visual-guide\s*\{[^}]*grid-template-columns:',re.S)
         self.assertRegex(css,r'\.visual-guide img\s*\{[^}]*max-width:\s*100%')
+
+    def drill_records(self):
+        source=(ROOT/'data/content.js').read_text(encoding='utf-8')
+        body=re.search(r"\bdrillPrograms:\s*\[(.*?)\n\s*\]",source,re.S).group(1)
+        return re.findall(r"\{[^{}]*\}",body)
+
+    def test_rendering_twice_does_not_duplicate_shared_regions(self):
+        source=(ROOT/'script.js').read_text(encoding='utf-8')
+        self.assertIn('function replaceMountContent(',source)
+        for renderer in ('renderHeader','renderFooter','renderAnnouncements','renderQuickLinks','renderCountdown','renderCalendar','renderGallery'):
+            body=re.search(rf'function {renderer}\([^)]*\)\s*\{{(.*?)(?=\n  function |\n\}}\)\(\);)',source,re.S).group(1)
+            self.assertIn('replaceMountContent(',body,renderer)
+        self.assertEqual(source.count('initialize();'),1)
+        self.assertIn("document.documentElement.dataset.siteListenersBound",source)
+
+    def test_rendering_twice_does_not_duplicate_drill_cards(self):
+        source=(ROOT/'script.js').read_text(encoding='utf-8')
+        body=re.search(r'function renderCollection\(mount\) \{(.*?)\n  \}',source,re.S).group(1)
+        self.assertIn('new Map',body)
+        self.assertIn('replaceMountContent(',body)
+        self.assertIn("element(record.url ? 'a' : 'article', 'card')",body)
+        self.assertNotRegex(body,r"element\(['\"](?:button|input|select|textarea)['\"]")
+
+    def test_drill_collection_contains_exactly_six_unique_programs(self):
+        records=self.drill_records(); self.assertEqual(len(records),6)
+        for field in ('id','title','url'):
+            values=[re.search(rf"\b{field}:\s*'([^']+)'",r).group(1) for r in records]
+            self.assertEqual(len(values),len(set(values)),field)
+        orders=[int(re.search(r'\border:\s*(\d+)',r).group(1)) for r in records]
+        self.assertEqual(orders,sorted(set(orders)))
+        self.assertTrue(all(re.search(r'\benabled:\s*true\b',r) for r in records))
+
+    def test_each_drill_page_has_one_distinct_visual(self):
+        pages=['drill-and-ceremony','color-guard','drill-team','unarmed-drill','armed-drill','unarmed-exhibition','armed-exhibition']
+        assets=[]; hashes=[]
+        for name in pages:
+            parser=self.parse(ROOT/'pages'/f'{name}.html')
+            images=[attrs for tag,attrs in parser.starts if tag=='img' and '/drill/' in attrs.get('src','')]
+            self.assertEqual(len(images),1,name); assets.append(images[0]['src'])
+            raw=(ROOT/'assets'/'drill'/Path(images[0]['src']).name).read_text()
+            normalized=re.sub(r'\s+|\b(?:id|aria-labelledby)="[^"]*"','',raw)
+            hashes.append(hashlib.sha256(normalized.encode()).hexdigest())
+        self.assertEqual(len(set(assets)),7); self.assertEqual(len(set(hashes)),7)
+
+    def test_drill_visuals_are_accessible_and_motion_safe(self):
+        for path in sorted((ROOT/'assets/drill').glob('*.svg')):
+            svg=path.read_text(); root=ET.fromstring(svg); ns='{http://www.w3.org/2000/svg}'
+            title=root.findall(f'{ns}title'); desc=root.findall(f'{ns}desc')
+            self.assertEqual(len(title),1,path); self.assertEqual(len(desc),1,path)
+            self.assertGreater(len(''.join(title[0].itertext()).strip()),8)
+            self.assertGreater(len(''.join(desc[0].itertext()).strip()),20)
+            self.assertEqual(root.get('aria-labelledby','').split(),[title[0].get('id'),desc[0].get('id')])
+            self.assertIn('@keyframes',svg); self.assertIn('prefers-reduced-motion: reduce',svg)
+            ids=re.findall(r'\bid="([^"]+)"',svg); self.assertEqual(len(ids),len(set(ids)),path)
+
+    def test_drill_detail_copy_is_not_repeated(self):
+        for path in sorted((ROOT/'pages').glob('*.html')):
+            if path.stem not in {'color-guard','drill-team','unarmed-drill','armed-drill','unarmed-exhibition','armed-exhibition'}: continue
+            parser=self.parse(path); tags=[tag for tag,_ in parser.starts]
+            self.assertEqual(tags.count('h1'),1); self.assertEqual(tags.count('figure'),1)
+            self.assertEqual(sum(1 for tag,attrs in parser.starts if isinstance(attrs,dict) and 'program-overview' in attrs.get('class','').split()),1)
+            blocks=[' '.join(t.split()).lower() for t in re.findall(r'<(?:p|figcaption)[^>]*>(.*?)</(?:p|figcaption)>',path.read_text(),re.S) if len(' '.join(t.split()))>25]
+            for i,left in enumerate(blocks):
+                for right in blocks[i+1:]: self.assertLess(SequenceMatcher(None,left,right).ratio(),.72,path)
+
+    def test_drill_pages_have_one_complete_document(self):
+        for path in sorted((ROOT/'pages').glob('*.html')):
+            if path.stem not in {'drill-and-ceremony','color-guard','drill-team','unarmed-drill','armed-drill','unarmed-exhibition','armed-exhibition'}: continue
+            parser=self.parse(path); tags=[tag for tag,_ in parser.starts]
+            for tag in ('doctype','html','head','body','main'): self.assertEqual(tags.count(tag),1,(path,tag))
+            self.assertEqual(parser.ids.count('main-content'),1); self.assertEqual(parser.mounts.count('data-site-header'),1); self.assertEqual(parser.mounts.count('data-site-footer'),1)
+            scripts=[ref for tag,ref in parser.refs if tag=='script' and ref.endswith('script.js')]
+            self.assertEqual(len(scripts),1,path)
+        parent=(ROOT/'pages/drill-and-ceremony.html').read_text(); self.assertEqual(len(re.findall(r'data-content=["\']drillPrograms["\']',parent)),1)
+
+    def test_all_drill_links_and_assets_resolve(self):
+        paths=[ROOT/'pages'/f'{name}.html' for name in ('drill-and-ceremony','color-guard','drill-team','unarmed-drill','armed-drill','unarmed-exhibition','armed-exhibition')]
+        for path in paths:
+            parser=self.parse(path); self.assertEqual(len(parser.ids),len(set(parser.ids)),path)
+            for _,target in parser.refs:
+                clean=urlsplit(target)
+                if clean.scheme: continue
+                if clean.path: self.assertTrue((path.parent/clean.path).resolve().exists(),(path,target))
+            source=path.read_text(); self.assertFalse(re.search(r'<a\b[^>]*>.*?<(?:a|button|input|select|textarea)\b',source,re.S|re.I),path)
+        all_source='\n'.join(p.read_text(errors='ignore') for p in [*HTML_FILES,ROOT/'script.js',ROOT/'styles.css',*ROOT.glob('data/*.js'),*ROOT.glob('assets/drill/*.svg')])
+        self.assertFalse(any(x in all_source for x in ('<<<<<<<','=======','>>>>>>>','PLACEHOLDER')))
+        self.assertFalse(any(any((ROOT/'assets/drill').glob(ext)) for ext in ('*.png','*.jpg','*.jpeg','*.webp','*.gif')))
 
     def test_no_merge_markers(self):
         for path in [*HTML_FILES,ROOT/'script.js',ROOT/'styles.css',*list((ROOT/'data').glob('*.js'))]:

@@ -70,3 +70,10 @@ code { color: var(--gold); } dialog { color: var(--text-primary); background: va
 .visual-guide img { display: block; width: 100%; max-width: 100%; height: auto; }
 .drill-visual figcaption { padding: .8rem 1rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: .88rem; }
 @media(max-width:760px) { .visual-guide { grid-template-columns: 1fr; }.drill-visual { width: 100%; } }
+.program-overview { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(16rem,.85fr); align-items:center; gap:clamp(1.25rem,4vw,3rem); min-width:0; }
+.program-overview > * { min-width:0; }
+.program-copy { padding:clamp(.25rem,2vw,1.25rem); }
+.program-copy p { color:var(--text-secondary); }
+.program-copy li { margin-block:.35rem; }
+@media(max-width:760px) { .program-overview { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:360px) { .site-width { width:min(100% - 1rem,1160px); } .program-copy { padding:.1rem; } }
