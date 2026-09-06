@@ -298,15 +298,60 @@ class SiteTests(unittest.TestCase):
         self.assertEqual(len(set(assets)),7); self.assertEqual(len(set(hashes)),7)
 
     def test_drill_visuals_are_accessible_and_motion_safe(self):
+        viewboxes=set()
+        compositions=[]
         for path in sorted((ROOT/'assets/drill').glob('*.svg')):
             svg=path.read_text(); root=ET.fromstring(svg); ns='{http://www.w3.org/2000/svg}'
+            viewboxes.add(root.get('viewBox'))
             title=root.findall(f'{ns}title'); desc=root.findall(f'{ns}desc')
             self.assertEqual(len(title),1,path); self.assertEqual(len(desc),1,path)
             self.assertGreater(len(''.join(title[0].itertext()).strip()),8)
             self.assertGreater(len(''.join(desc[0].itertext()).strip()),20)
             self.assertEqual(root.get('aria-labelledby','').split(),[title[0].get('id'),desc[0].get('id')])
+            self.assertEqual(root.get('data-motion-state'),'final',path)
+            self.assertEqual(root.get('data-drill-artwork'),'one-shot',path)
             self.assertIn('@keyframes',svg); self.assertIn('prefers-reduced-motion: reduce',svg)
+            self.assertNotRegex(svg,r'animation[^;}]*\binfinite\b',path)
+            self.assertRegex(svg,r'\.is-active\s+\.motion-layer',path)
             ids=re.findall(r'\bid="([^"]+)"',svg); self.assertEqual(len(ids),len(set(ids)),path)
+            self.assertFalse(root.findall(f'.//{ns}image'),path)
+            self.assertFalse(root.findall(f'.//{ns}script'),path)
+            self.assertNotRegex(svg,r'\bon[a-z]+\s*=|data:image/|(?:href|src)=["\']https?://',path)
+            self.assertNotRegex(' '.join(root.itertext()),r'(?i)\b(name\s*tag|rank|shoulder\s*cord|glove|insignia)\b',path)
+            # Geometry, rather than paint or identifiers, must distinguish each scene.
+            geometry='|'.join(node.get('d') or node.get('points') or node.get('transform') or '' for node in root.iter() if node.tag in {f'{ns}path',f'{ns}polygon',f'{ns}g'})
+            compositions.append(hashlib.sha256(geometry.encode()).hexdigest())
+        self.assertEqual(viewboxes,{'0 0 720 420'})
+        self.assertEqual(len(compositions),7)
+        self.assertEqual(len(set(compositions)),7)
+
+    def test_drill_animation_controller_is_idempotent_and_one_shot(self):
+        source=(ROOT/'script.js').read_text(encoding='utf-8')
+        self.assertEqual(len(re.findall(r'function initializeDrillVisuals\s*\(',source)),1)
+        body=re.search(r'function initializeDrillVisuals\(\)\s*\{(.*?)\n  \}',source,re.S).group(1)
+        self.assertIn("querySelectorAll('[data-drill-visual]')",body)
+        self.assertIn('dataset.drillMotionInitialized',body)
+        self.assertEqual(body.count('new IntersectionObserver'),1)
+        self.assertIn("classList.add('is-active')",body)
+        self.assertIn('observer.unobserve',body)
+        self.assertIn("matchMedia('(prefers-reduced-motion: reduce)')",body)
+        self.assertEqual(source.count('initializeDrillVisuals();'),1)
+        function_source=re.search(r'(function initializeDrillVisuals\(\)\s*\{.*?\n  \})\n\n  function initialize\(',source,re.S).group(1)
+        harness=f"""
+let observerCount=0, observeCount=0, unobserveCount=0, additions=0;
+const image={{src:'art.svg',currentSrc:'art.svg'}};
+const visual={{dataset:{{}},classList:{{add:()=>additions++}},querySelector:()=>image}};
+global.document={{querySelectorAll:()=>[visual]}};
+global.window=global;
+global.matchMedia=()=>({{matches:false}});
+global.IntersectionObserver=class {{ constructor(callback){{observerCount++;this.callback=callback;global.observer=this}} observe(){{observeCount++}} unobserve(){{unobserveCount++}} }};
+{function_source}
+initializeDrillVisuals(); initializeDrillVisuals();
+observer.callback([{{isIntersecting:true,target:visual}}]);
+observer.callback([{{isIntersecting:true,target:visual}}]);
+if(observerCount!==1||observeCount!==1||unobserveCount!==2||additions!==1||image.src!=='art.svg#play') process.exit(1);
+"""
+        subprocess.run(['node','-e',harness],cwd=ROOT,check=True,capture_output=True,text=True)
 
     def test_drill_detail_copy_is_not_repeated(self):
         for path in sorted((ROOT/'pages').glob('*.html')):
