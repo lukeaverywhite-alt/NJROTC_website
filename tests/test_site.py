@@ -28,6 +28,24 @@ class SiteTests(unittest.TestCase):
     def parse(self, path):
         parser=DocumentParser(); parser.feed(path.read_text(encoding='utf-8')); return parser
 
+    def test_drill_card_has_dedicated_structural_page(self):
+        content=(ROOT/'data/content.js').read_text(encoding='utf-8')
+        drill_entries=re.findall(r"\{[^{}]*\bid:\s*'drill'[^{}]*\}",content)
+        self.assertEqual(len(drill_entries),1,'expected exactly one drill content entry')
+        url=re.search(r"\burl:\s*'([^']+)'",drill_entries[0]).group(1)
+        self.assertEqual(url,'pages/drill-and-ceremony.html')
+
+        path=ROOT/url
+        self.assertTrue(path.exists(),f'missing drill page: {path}')
+        parser=self.parse(path); tags=[item[0] for item in parser.starts]
+        for name in ('doctype','html','head','body','main'):
+            self.assertEqual(tags.count(name),1,f'{path}: expected one {name}')
+        self.assertEqual(parser.mounts.count('data-site-header'),1)
+        self.assertEqual(parser.mounts.count('data-site-footer'),1)
+        self.assertEqual(parser.ids.count('main-content'),1)
+        self.assertEqual(len(parser.ids),len(set(parser.ids)),f'{path}: duplicate HTML id')
+        self.assertIn(('a','teams.html'),parser.refs)
+
     def test_every_html_has_one_document_and_shared_regions(self):
         for path in HTML_FILES:
             with self.subTest(path=path):
