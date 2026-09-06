@@ -34,8 +34,8 @@ window.SITE_CONFIG = {
     phone: '203-794-8600',
     address: '300 Whittlesey Drive, Bethel, CT 06801',
     instructors: [
-      { name: 'Michael Ipkovich', title: 'Commander, U.S. Navy (Retired)', role: 'Senior Naval Science Instructor', email: 'ipkovichm@bethel.k12.ct.us' },
-      { name: 'John Meehan', title: 'Master Sergeant, U.S. Marine Corps (Retired)', role: 'Naval Science Instructor', email: 'meehanj@bethel.k12.ct.us' }
+      { name: 'Andrew Ivcovich', title: 'Commander, U.S. Navy (Retired)', role: 'Senior Naval Science Instructor (SNSI)', email: 'ivcovicha@bethel.k12.ct.us' },
+      { name: 'Joe Meehan', title: 'Master Sergeant, U.S. Marine Corps (Retired)', role: 'Assistant Naval Science Instructor (ANSI)', email: 'meehanj@bethel.k12.ct.us' }
     ],
     verifiedOn: '2026-09-06'
   },
