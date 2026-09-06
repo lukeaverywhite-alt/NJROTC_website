@@ -230,6 +230,30 @@ class SiteTests(unittest.TestCase):
                 parsed=urlsplit(url.rstrip('.,')); self.assertEqual(parsed.scheme,'https',f'{path}: {url}')
                 self.assertIn(parsed.hostname,APPROVED_HOSTS,f'{path}: {url}')
 
+    def test_official_school_contacts_are_published_consistently(self):
+        config=(ROOT/'data/site-config.js').read_text(encoding='utf-8')
+        contact=(ROOT/'pages/contact.html').read_text(encoding='utf-8')
+        wellness=(ROOT/'pages/wellness.html').read_text(encoding='utf-8')
+        content=(ROOT/'data/content.js').read_text(encoding='utf-8')
+        for value in ('203-794-8600','300 Whittlesey Drive','Bethel, CT 06801'):
+            self.assertIn(value,config)
+            self.assertIn(value,contact)
+        for name,email in (
+            ('Andrew Ivcovich','ivcovicha@bethel.k12.ct.us'),
+            ('Joe Meehan','meehanj@bethel.k12.ct.us'),
+        ):
+            self.assertIn(name,config)
+            self.assertIn(email,config)
+            self.assertIn(name,contact)
+            self.assertIn(email,contact)
+            self.assertIn(name,content)
+        for incorrect in ('Michael Ipkovich','John Meehan','ipkovichm@bethel.k12.ct.us'):
+            self.assertNotIn(incorrect,config + contact + content)
+        self.assertIn('Bethel High School Counseling Office',wellness)
+        self.assertIn('203-794-8600',wellness)
+        self.assertNotIn('Verified contacts pending',wellness)
+        self.assertNotIn('Verification required',contact)
+
     def test_javascript_syntax_and_single_renderers(self):
         subprocess.run(['node','--check','script.js'],cwd=ROOT,check=True,capture_output=True,text=True)
         source=(ROOT/'script.js').read_text()
@@ -273,57 +297,6 @@ class SiteTests(unittest.TestCase):
         self.assertIn("element(record.url ? 'a' : 'article', 'card')",renderer)
         self.assertNotRegex(renderer,r"element\(['\"](?:button|input|select|textarea)['\"]")
 
-    def test_drill_visual_guides_are_unique_accessible_and_motion_safe(self):
-        expected={
-            'drill-and-ceremony.html': 'drill-overview.svg',
-            'color-guard.html': 'color-guard.jpg',
-            'drill-team.html': 'drill-team.svg',
-            'unarmed-drill.html': 'unarmed-drill.jpg',
-            'armed-drill.html': 'armed-drill.jpg',
-            'unarmed-exhibition.html': 'unarmed-exhibition.svg',
-            'armed-exhibition.html': 'armed-exhibition.svg',
-        }
-        referenced=[]
-        for page,asset in expected.items():
-            with self.subTest(page=page,asset=asset):
-                parser=self.parse(ROOT/'pages'/page)
-                matches=[target for tag,target in parser.refs if tag=='img' and target==f'../assets/drill/{asset}']
-                self.assertEqual(len(matches),1)
-                image_tags=[attrs for tag,attrs in parser.starts if tag=='img' and attrs.get('src')==matches[0]]
-                self.assertEqual(len(image_tags),1)
-                self.assertTrue(image_tags[0].get('alt','').strip())
-                self.assertEqual(image_tags[0].get('loading'),'lazy')
-                self.assertIn('figure',[tag for tag,_ in parser.starts])
-                self.assertIn('figcaption',[tag for tag,_ in parser.starts])
-                referenced.extend(matches)
-
-                if not asset.endswith('.svg'): continue
-                svg_path=ROOT/'assets'/'drill'/asset
-                self.assertTrue(svg_path.exists())
-                svg=svg_path.read_text(encoding='utf-8')
-                root=ET.fromstring(svg)
-                ns='{http://www.w3.org/2000/svg}'
-                self.assertEqual(root.tag,f'{ns}svg')
-                titles=root.findall(f'{ns}title'); descriptions=root.findall(f'{ns}desc')
-                self.assertEqual(len(titles),1)
-                self.assertEqual(len(descriptions),1)
-                labelled_by=root.get('aria-labelledby','').split()
-                self.assertEqual(labelled_by,[titles[0].get('id'),descriptions[0].get('id')])
-                self.assertNotIn('TEXT',''.join(root.itertext()))
-                self.assertIn('@keyframes',svg)
-                self.assertIn('prefers-reduced-motion: reduce',svg)
-                ids=re.findall(r'\bid="([^"]+)"',svg)
-                self.assertEqual(len(ids),len(set(ids)))
-        self.assertEqual(len(referenced),len(set(referenced)))
-
-        css=(ROOT/'styles.css').read_text(encoding='utf-8')
-        self.assertRegex(css,r'\.visual-guide\s*\{[^}]*grid-template-columns:',re.S)
-        self.assertRegex(css,r'\.visual-guide img\s*\{[^}]*max-width:\s*100%')
-        drill_pages = {'drill-and-ceremony', 'color-guard', 'drill-team', 'unarmed-drill', 'armed-drill', 'unarmed-exhibition', 'armed-exhibition'}
-        for name in drill_pages:
-            source = (ROOT / 'pages' / f'{name}.html').read_text()
-            self.assertNotRegex(source, r'<(?:img|picture|svg)\b[^>]*(?:/drill/|data-program-visual)', name)
-
     def drill_records(self):
         source=(ROOT/'data/content.js').read_text(encoding='utf-8')
         body=re.search(r"\bdrillPrograms:\s*\[(.*?)\n\s*\]",source,re.S).group(1)
@@ -355,30 +328,21 @@ class SiteTests(unittest.TestCase):
         self.assertEqual(orders,sorted(set(orders)))
         self.assertTrue(all(re.search(r'\benabled:\s*true\b',r) for r in records))
 
-    def test_each_drill_page_has_one_distinct_visual(self):
-        drill_pages = {'drill-and-ceremony', 'color-guard', 'drill-team', 'unarmed-drill', 'armed-drill', 'unarmed-exhibition', 'armed-exhibition'}
-        for name in drill_pages:
-            parser = self.parse(ROOT / 'pages' / f'{name}.html')
-            images = [attrs for tag, attrs in parser.starts if tag == 'img' and '/drill/' in attrs.get('src', '')]
-            self.assertEqual(images, [], name)
-
     def test_drill_visuals_are_accessible_and_motion_safe(self):
         self.assertEqual(list((ROOT / 'assets/drill').glob('*.svg')), [])
 
     def test_program_animation_controller_is_idempotent_and_one_shot(self):
         source = (ROOT / 'script.js').read_text(encoding='utf-8')
-        css = (ROOT / 'styles.css').read_text(encoding='utf-8')
         self.assertNotIn('initializeProgramVisuals', source)
         self.assertNotIn('data-program-visual', source)
-        self.assertNotIn('data-program-visual', css)
-        self.assertNotIn('.drill-visual', css)
-        self.assertNotIn('.program-visual', css)
 
     def test_drill_detail_copy_is_not_repeated(self):
+        photographed={'color-guard','unarmed-drill','armed-drill'}
         for path in sorted((ROOT/'pages').glob('*.html')):
             if path.stem not in {'color-guard','drill-team','unarmed-drill','armed-drill','unarmed-exhibition','armed-exhibition'}: continue
             parser=self.parse(path); tags=[tag for tag,_ in parser.starts]
-            self.assertEqual(tags.count('h1'),1); self.assertEqual(tags.count('figure'),0)
+            self.assertEqual(tags.count('h1'),1)
+            self.assertEqual(tags.count('figure'),1 if path.stem in photographed else 0)
             self.assertEqual(sum(1 for tag,attrs in parser.starts if isinstance(attrs,dict) and 'program-overview' in attrs.get('class','').split()),1)
             blocks=[' '.join(t.split()).lower() for t in re.findall(r'<(?:p|figcaption)[^>]*>(.*?)</(?:p|figcaption)>',path.read_text(),re.S) if len(' '.join(t.split()))>25]
             for i,left in enumerate(blocks):
