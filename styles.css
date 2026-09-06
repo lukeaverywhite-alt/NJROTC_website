@@ -66,8 +66,11 @@ code { color: var(--gold); } dialog { color: var(--text-primary); background: va
 @media(max-width:520px) { .brand { font-size: .76rem; letter-spacing: .03em; }.brand img { width: 44px;height:44px; }.home-hero::before,.home-hero::after { display:none; }.hero-copy h1 { font-size: 2.6rem; }.footer-inner { align-items:flex-start;flex-direction:column;justify-content:center;padding:.75rem 0; }.page-hero { padding:3rem 0 2rem; } }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important;transition:none!important;animation:none!important; } }
 .visual-guide { display: grid; grid-template-columns: minmax(0,.9fr) minmax(320px,1.1fr); align-items: center; gap: clamp(1.5rem,4vw,3.5rem); }
-.drill-visual { margin: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 18px; background: var(--surface-deep); box-shadow: var(--shadow); }
+.drill-visual { width:100%; margin:0; overflow:hidden; border:1px solid var(--border); border-radius:18px; background:var(--surface-deep); box-shadow:var(--shadow); contain:layout paint; }
 .visual-guide img { display: block; width: 100%; max-width: 100%; height: auto; }
+.drill-visual img { display:block; width:100%; max-width:100%; height:auto; aspect-ratio:12 / 7; object-fit:contain; }
+.drill-visual[data-drill-visual] img { opacity:.96; transition:opacity .35s ease-out; }
+.drill-visual[data-drill-visual].is-active img { opacity:1; }
 .drill-visual figcaption { padding: .8rem 1rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: .88rem; }
 @media(max-width:760px) { .visual-guide { grid-template-columns: 1fr; }.drill-visual { width: 100%; } }
 .program-overview { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(16rem,.85fr); align-items:center; gap:clamp(1.25rem,4vw,3rem); min-width:0; }
@@ -77,3 +80,4 @@ code { color: var(--gold); } dialog { color: var(--text-primary); background: va
 .program-copy li { margin-block:.35rem; }
 @media(max-width:760px) { .program-overview { grid-template-columns:minmax(0,1fr); } }
 @media(max-width:360px) { .site-width { width:min(100% - 1rem,1160px); } .program-copy { padding:.1rem; } }
+@media(prefers-reduced-motion:reduce) { .drill-visual[data-drill-visual] img { opacity:1;transition:none; } }

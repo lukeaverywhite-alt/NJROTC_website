@@ -116,9 +116,35 @@
   function renderGallery() { document.querySelectorAll('[data-gallery]').forEach(mount => { const fragment=document.createDocumentFragment(); const items=window.GALLERY_ITEMS || []; if(!items.length)fragment.append(element('p','empty-state','No approved gallery images are available yet.')); items.forEach(item => {const src=safeUrl(item.src);if(!src)return;const figure=element('figure','gallery-item');const image=element('img');image.src=src;image.alt=item.alt || '';image.loading='lazy';figure.append(image,element('figcaption','',item.caption || ''));fragment.append(figure);}); replaceMountContent(mount,fragment,'gallery'); }); }
   function renderCurrentYear() { document.querySelectorAll('[data-current-year]').forEach(node => { node.textContent = String(new Date().getFullYear()); }); }
 
+  function initializeDrillVisuals() {
+    const visuals = [...document.querySelectorAll('[data-drill-visual]')].filter(visual => !visual.dataset.drillMotionInitialized);
+    if (!visuals.length) return;
+    const activate = visual => {
+      if (visual.dataset.drillMotionComplete) return;
+      visual.classList.add('is-active');
+      const image = visual.querySelector('img');
+      if (image && !matchMedia('(prefers-reduced-motion: reduce)').matches) image.src = `${image.currentSrc || image.src}`.split('#')[0] + '#play';
+      visual.dataset.drillMotionComplete = 'true';
+    };
+    visuals.forEach(visual => { visual.dataset.drillMotionInitialized = 'true'; });
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
+      visuals.forEach(activate);
+      return;
+    }
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        activate(entry.target);
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.3 });
+    visuals.forEach(visual => observer.observe(visual));
+  }
+
   function initialize() {
     renderHeader(); initializeTheme(); renderFooter(); renderAnnouncements(); renderQuickLinks(); renderCountdown(); renderCalendar(); renderGallery(); renderCurrentYear();
     document.querySelectorAll('[data-content]').forEach(renderCollection);
+    initializeDrillVisuals();
     if (document.documentElement.dataset.siteListenersBound) return;
     document.documentElement.dataset.siteListenersBound = 'true';
     document.addEventListener('click', event => { if (!event.target.closest('.nav-group')) closeDropdowns(); });
