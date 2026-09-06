@@ -108,6 +108,72 @@ class SiteTests(unittest.TestCase):
         parent=(ROOT/'pages/drill-and-ceremony.html').read_text(encoding='utf-8')
         self.assertEqual(len(re.findall(r'data-content=["\']drillPrograms["\']',parent)),1)
 
+    def test_fitness_programs_are_complete_and_unique(self):
+        content=(ROOT/'data/content.js').read_text(encoding='utf-8')
+        match=re.search(r"\bfitnessPrograms:\s*\[(.*?)\n\s*\]",content,re.S)
+        self.assertIsNotNone(match,'missing fitnessPrograms collection')
+        records=re.findall(r"\{[^{}]*\}",match.group(1))
+        expected=[
+            ('pt-team','pages/pt-team.html'),
+            ('physical-fitness-assessments','pages/physical-fitness-assessments.html'),
+            ('klondike-derby','pages/klondike-derby.html'),
+        ]
+        actual=[(re.search(r"\bid:\s*'([^']+)'",r).group(1),re.search(r"\burl:\s*'([^']+)'",r).group(1)) for r in records]
+        self.assertEqual(actual,expected)
+        self.assertEqual(len(records),3)
+        self.assertTrue(all(re.search(r'\benabled:\s*true\b',r) for r in records))
+        orders=[int(re.search(r'\border:\s*(\d+)',r).group(1)) for r in records]
+        self.assertEqual(orders,sorted(set(orders)))
+        parent=(ROOT/'pages/athletics-and-fitness.html').read_text(encoding='utf-8')
+        self.assertEqual(len(re.findall(r'data-content=["\']fitnessPrograms["\']',parent)),1)
+        self.assertIn('Fitness Competitions',parent)
+
+    def test_fitness_pages_encode_confirmed_unit_behavior(self):
+        expected=['pt-team','physical-fitness-assessments','klondike-derby']
+        for name in expected:
+            path=ROOT/'pages'/f'{name}.html'; self.assertTrue(path.exists(),path)
+            parser=self.parse(path); tags=[tag for tag,_ in parser.starts]
+            self.assertEqual(tags.count('h1'),1); self.assertEqual(tags.count('figure'),1)
+            self.assertIn(('a','athletics-and-fitness.html'),parser.refs)
+            self.assertNotIn('more information is coming',' '.join(parser.text).lower())
+        assessment=(ROOT/'pages/physical-fitness-assessments.html').read_text().lower()
+        self.assertNotIn('et assessment',assessment)
+        for phrase in ('curl-ups','push-ups','one-mile run','plank','fall pt assessment','spring pt assessment'):
+            self.assertIn(phrase,assessment)
+        self.assertIn('crm, pp. 47–49',assessment)
+        derby=' '.join(self.parse(ROOT/'pages/klondike-derby.html').text).lower()
+        positions=[derby.index(term) for term in ('sled pull','fence obstacle','field run','snowman build','return run','air-rifle marksmanship')]
+        self.assertEqual(positions,sorted(positions)); self.assertIn('four teams',derby); self.assertIn('alpha',derby); self.assertIn('bravo',derby)
+
+    def test_fitness_visuals_are_unique_accessible_and_motion_safe(self):
+        expected={'athletics-and-fitness':'fitness-overview.svg','pt-team':'pt-team.svg','physical-fitness-assessments':'fitness-assessments.svg','klondike-derby':'klondike-derby.svg'}
+        seen=[]
+        for page,asset in expected.items():
+            parser=self.parse(ROOT/'pages'/f'{page}.html')
+            images=[attrs for tag,attrs in parser.starts if tag=='img' and attrs.get('src')==f'../assets/fitness/{asset}']
+            self.assertEqual(len(images),1,page); self.assertTrue(images[0].get('alt','').strip()); self.assertEqual(images[0].get('loading'),'lazy')
+            svg=(ROOT/'assets/fitness'/asset).read_text(); root=ET.fromstring(svg); ns='{http://www.w3.org/2000/svg}'
+            self.assertEqual(root.tag,f'{ns}svg'); self.assertEqual(root.get('viewBox'),'0 0 720 420')
+            self.assertEqual(len(root.findall(f'{ns}title')),1); self.assertEqual(len(root.findall(f'{ns}desc')),1)
+            self.assertIn('@keyframes',svg); self.assertIn('prefers-reduced-motion: reduce',svg); self.assertNotRegex(svg,r'animation[^;}]*\binfinite\b')
+            seen.append(asset)
+        self.assertEqual(len(seen),len(set(seen)))
+
+    def test_fitness_standards_have_checked_in_crm_provenance(self):
+        reference=ROOT/'references/crm-3rd_edition-fitness.txt'
+        self.assertTrue(reference.exists())
+        source=reference.read_text(encoding='utf-8')
+        page=(ROOT/'pages/physical-fitness-assessments.html').read_text(encoding='utf-8')
+        for marker in ('PRINTED PAGE 47','PRINTED PAGE 48','PRINTED PAGE 49','The manual does not include a plank'):
+            self.assertIn(marker,source)
+        for value in ('73','96','11:40','6:06'):
+            self.assertIn(f'>{value}<',page)
+        parser=self.parse(ROOT/'pages/physical-fitness-assessments.html')
+        tags=[tag for tag,_ in parser.starts]
+        self.assertEqual(tags.count('table'),3)
+        self.assertEqual(tags.count('caption'),3)
+        self.assertGreaterEqual(tags.count('th'),30)
+
     def test_every_html_has_one_document_and_shared_regions(self):
         for path in HTML_FILES:
             with self.subTest(path=path):
