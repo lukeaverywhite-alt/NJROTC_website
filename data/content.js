@@ -38,11 +38,11 @@ window.SITE_CONTENT = {
     { id: 'bethel-schools', title: 'Bethel Public Schools', description: 'Official school district website.', url: 'https://www.bethel.k12.ct.us/', category: 'Official reference', order: 70, enabled: true, verifiedOn: '2026-09-05' }
   ],
   joining: [
-    { id: 'counselor', title: 'Talk with your school counselor', description: 'Ask your counselor how NJROTC fits into your course plan.', category: 'First steps', order: 10, enabled: true, verifiedOn: '2026-09-05' },
-    { id: 'classroom', title: 'Visit the NJROTC classroom', description: 'Meet the unit and ask questions about participation.', category: 'First steps', order: 20, enabled: true, verifiedOn: '2026-09-05' }
+    { id: 'counselor', title: 'Talk with your school counselor', description: 'Contact the Bethel High School Counseling Office through the school’s main number, 203-794-8600, to ask how NJROTC fits into your course plan.', category: 'First steps', order: 10, enabled: true, verifiedOn: '2026-09-06' },
+    { id: 'classroom', title: 'Contact the NJROTC instructors', description: 'Email Commander Michael Ipkovich or Master Sergeant John Meehan using the official school contact details above.', category: 'First steps', order: 20, enabled: true, verifiedOn: '2026-09-06' }
   ],
   leadership: [
-    { id: 'instructors', title: 'Unit instructors', description: 'Verified instructor names, ranks, and official biographies can be added by the webmaster.', category: 'Instruction', order: 10, enabled: true, verifiedOn: '2026-09-05' },
+    { id: 'instructors', title: 'Unit instructors', description: 'Commander Michael Ipkovich, U.S. Navy (Retired), is the Senior Naval Science Instructor. Master Sergeant John Meehan, U.S. Marine Corps (Retired), is the Naval Science Instructor.', category: 'Instruction', order: 10, enabled: true, verifiedOn: '2026-09-06' },
     { id: 'command-staff', title: 'Command staff', description: 'Current cadet staff information is published only after unit approval.', category: 'Cadet leadership', order: 20, enabled: true, verifiedOn: '2026-09-05' },
     { id: 'departments', title: 'Departments', description: 'Approved billets and departmental responsibilities are arranged in hierarchy order.', category: 'Organization', order: 30, enabled: true, verifiedOn: '2026-09-05' }
   ],

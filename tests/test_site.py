@@ -229,6 +229,28 @@ class SiteTests(unittest.TestCase):
                 parsed=urlsplit(url.rstrip('.,')); self.assertEqual(parsed.scheme,'https',f'{path}: {url}')
                 self.assertIn(parsed.hostname,APPROVED_HOSTS,f'{path}: {url}')
 
+    def test_official_school_contacts_are_published_consistently(self):
+        config=(ROOT/'data/site-config.js').read_text(encoding='utf-8')
+        contact=(ROOT/'pages/contact.html').read_text(encoding='utf-8')
+        wellness=(ROOT/'pages/wellness.html').read_text(encoding='utf-8')
+        content=(ROOT/'data/content.js').read_text(encoding='utf-8')
+        for value in ('203-794-8600','300 Whittlesey Drive','Bethel, CT 06801'):
+            self.assertIn(value,config)
+            self.assertIn(value,contact)
+        for name,email in (
+            ('Michael Ipkovich','ipkovichm@bethel.k12.ct.us'),
+            ('John Meehan','meehanj@bethel.k12.ct.us'),
+        ):
+            self.assertIn(name,config)
+            self.assertIn(email,config)
+            self.assertIn(name,contact)
+            self.assertIn(email,contact)
+            self.assertIn(name,content)
+        self.assertIn('Bethel High School Counseling Office',wellness)
+        self.assertIn('203-794-8600',wellness)
+        self.assertNotIn('Verified contacts pending',wellness)
+        self.assertNotIn('Verification required',contact)
+
     def test_javascript_syntax_and_single_renderers(self):
         subprocess.run(['node','--check','script.js'],cwd=ROOT,check=True,capture_output=True,text=True)
         source=(ROOT/'script.js').read_text()
