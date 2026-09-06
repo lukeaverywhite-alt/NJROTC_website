@@ -336,8 +336,8 @@ class SiteTests(unittest.TestCase):
         self.assertNotIn('initializeProgramVisuals', source)
         self.assertNotIn('data-program-visual', source)
 
-    def test_drill_detail_copy_is_not_repeated(self):
-        photographed={'color-guard','unarmed-drill','armed-drill'}
+    def test_drill_pages_use_unique_program_structure(self):
+        photographed={'color-guard','drill-team','unarmed-drill','armed-drill'}
         for path in sorted((ROOT/'pages').glob('*.html')):
             if path.stem not in {'color-guard','drill-team','unarmed-drill','armed-drill','unarmed-exhibition','armed-exhibition'}: continue
             parser=self.parse(path); tags=[tag for tag,_ in parser.starts]
@@ -371,15 +371,16 @@ class SiteTests(unittest.TestCase):
         self.assertFalse(any(x in all_source for x in ('<<<<<<<','=======','>>>>>>>','PLACEHOLDER')))
         raster_assets={
             path.name
-            for extension in ('*.png','*.jpg','*.jpeg','*.webp','*.gif')
-            for path in (ROOT/'assets/drill').glob(extension)
+            for path in (ROOT/'assets/drill').iterdir()
+            if path.suffix.lower() in {'.png','.jpg','.jpeg','.webp','.gif'}
         }
-        self.assertEqual(raster_assets,{'armed-drill.jpg','color-guard.jpg','unarmed-drill.jpg'})
+        self.assertEqual(raster_assets,{'Drill-Overview.JPEG','armed-drill.jpg','color-guard.jpg','unarmed-drill.jpg'})
 
     def test_drill_photos_have_approved_content_and_interactions(self):
         expected={
             'armed-drill': ('armed-drill.jpg','Cadet Gavin Kopreski commands the armed platoon as Cadet Toshan Bhattacharya serves as the unit guidon during the Brewster Drill Meet in Brewster, New York, on December 13, 2025.'),
             'color-guard': ('color-guard.jpg','Cadets Michael Connors, Audrey Steele, Luke White, and Nolan Shaw present the colors while marching for the Tunnel to Towers Foundation at the Bethel High School track in Bethel, Connecticut, on June 28, 2026.'),
+            'drill-team': ('Drill-Overview.JPEG','Ten uniformed cadets are arranged outdoors, with one facing the other nine in three rows; no drill rifles, flags, or other drill equipment are visible.'),
             'unarmed-drill': ('unarmed-drill.jpg','Cadet Gavin Kopreski commands the unarmed platoon during the Washington Drill Meet in Washingtonville, New York, on November 8, 2025.'),
         }
         for page,(asset,caption) in expected.items():
@@ -388,6 +389,7 @@ class SiteTests(unittest.TestCase):
             self.assertEqual(len(photos),1,page); self.assertTrue(photos[0].get('alt','').strip())
             figures=[attrs for tag,attrs in parser.starts if tag=='figure' and 'photo-visual' in attrs.get('class','').split()]
             self.assertEqual(len(figures),1,page); self.assertEqual(figures[0].get('tabindex'),'0'); self.assertIn('data-photo-visual',figures[0])
+            if page == 'drill-team': self.assertIn('photo-visual--drill-overview',figures[0].get('class','').split())
             self.assertIn(caption,' '.join(self.parse(ROOT/'pages'/f'{page}.html').text))
         css=(ROOT/'styles.css').read_text(); script=(ROOT/'script.js').read_text()
         self.assertIn('12s linear infinite',css); self.assertIn('.photo-visual.is-selected',css)
