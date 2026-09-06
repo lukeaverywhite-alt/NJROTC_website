@@ -2,6 +2,7 @@
 import re
 import subprocess
 import unittest
+from collections import Counter
 from difflib import SequenceMatcher
 from html.parser import HTMLParser
 from pathlib import Path
@@ -246,7 +247,10 @@ class SiteTests(unittest.TestCase):
         for path in HTML_FILES:
             with self.subTest(path=path):
                 parser=self.parse(path)
-                self.assertEqual(len(parser.ids),len(set(parser.ids)),f'{path}: duplicate HTML id')
+                counts=Counter(parser.ids)
+                duplicates={html_id: count for html_id,count in counts.items() if count > 1}
+                self.assertEqual(duplicates,{},f'{path}: duplicate HTML ids: {duplicates}')
+                self.assertEqual(counts['main-content'],1,f'{path}: expected one main-content landmark')
 
     def test_raw_reference_is_not_deployed_or_referenced(self):
         self.assertFalse((ROOT/'Screenshot_20260905_153726_Gmail.jpg').exists())
@@ -431,5 +435,39 @@ class SiteTests(unittest.TestCase):
         self.assertEqual(len(checked),len(set(checked)))
         for path in checked:
             self.assertFalse(any(marker in path.read_text() for marker in ('<<<<<<<','=======','>>>>>>>')),path)
+
+    def test_cadet_creed_has_one_complete_dedicated_presentation(self):
+        path=ROOT/'pages/cadet-creed.html'; self.assertTrue(path.exists())
+        parser=self.parse(path); tags=[tag for tag,_ in parser.starts]
+        self.assertEqual(tags.count('h1'),1)
+        self.assertEqual(parser.ids.count('main-content'),1)
+        self.assertEqual(parser.ids.count('creed-title'),1)
+        visible=' '.join(' '.join(parser.text).split())
+        sentences=[
+            'I am a Navy Junior ROTC cadet.',
+            'I will always conduct myself to bring credit to my family, country, school, and the Corps of Cadets.',
+            'I am loyal and patriotic.',
+            'I am the future of the United States of America.',
+            'I do not lie, cheat, or steal and will always be accountable for my actions and deeds.',
+            'I will always practice good citizenship and patriotism.',
+            'I will work hard to improve my mind and strengthen my body.',
+            'I will seek the mantle of leadership and stand prepared to uphold the Constitution and the American way of life.',
+            'May I be granted the strength to always live by this creed.',
+            'Oorah!',
+        ]
+        for sentence in sentences: self.assertEqual(visible.count(sentence),1,sentence)
+        self.assertEqual(tags.count('p'),10)
+        training=self.parse(ROOT/'pages/training.html')
+        self.assertEqual(training.refs.count(('a','cadet-creed.html')),1)
+
+    def test_cadet_creed_animation_is_css_only_and_sequential(self):
+        html=(ROOT/'pages/cadet-creed.html').read_text(encoding='utf-8')
+        css=(ROOT/'styles.css').read_text(encoding='utf-8')
+        self.assertEqual(len(re.findall(r'class="creed-sentence"',html)),9)
+        self.assertEqual([int(value) for value in re.findall(r'--sentence: (\d+)',html)],list(range(9)))
+        self.assertEqual(css.count('@keyframes creed-highlight'),1)
+        self.assertIn('animation:creed-highlight',css)
+        self.assertRegex(css,r'\.creed-heading h1[^}]*color:var\(--gold\)')
+        self.assertRegex(css,r'\.creed-oorah[^}]*color:var\(--gold\)[^}]*clamp\(2\.5rem')
 
 if __name__ == '__main__': unittest.main()
