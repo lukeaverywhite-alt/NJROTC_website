@@ -40,9 +40,9 @@ Announcements support `normal`, `important`, and `urgent` levels plus optional `
 
 ## Logo and binary policy
 
-`assets/unit-mark.svg` is the approved site derivative rebuilt from the supplied 2026 unit-logo reference: it preserves the Bethel/NJROTC circular identity, anchor, and maroon-and-white wildcat in a text-reviewable vector. `assets/favicon.svg` is its small-size companion. Obtain unit approval before replacing either. A replacement must be a square, accessible, self-contained SVG with unique internal IDs; update `identity.logo` only if its path changes.
+`assets/official-unit-mark.png` is the shared unit mark used by both the home-page hero and the site header. Replace that file in place to update both placements without creating duplicate logo assets; preserve a near-square aspect ratio and transparent background when possible. `assets/favicon.svg` is its small-size companion.
 
-The supplied JPEG reference was removed from normal Git tracking after the derivative was prepared. If retention is required, archive the original outside this patch-based repository. Normal contributions must not add raster binaries (JPEG, PNG, WebP, GIF, AVIF, or ICO); `.gitattributes` classifies them as binary to prevent misleading text diffs. Do not introduce Git LFS unless every contributor and GitHub Pages deployment explicitly supports it.
+The official unit mark is the sole approved raster-logo exception. Other supplied reference images should be archived outside this patch-based repository unless they are approved site content. `.gitattributes` classifies raster assets as binary to prevent misleading text diffs. Do not introduce Git LFS unless every contributor and GitHub Pages deployment explicitly supports it.
 
 ## Themes and accessibility
 

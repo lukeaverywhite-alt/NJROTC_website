@@ -7,7 +7,6 @@ from difflib import SequenceMatcher
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit
-import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 HTML_FILES = sorted(ROOT.glob('*.html')) + sorted((ROOT / 'pages').glob('*.html'))
@@ -262,10 +261,25 @@ class SiteTests(unittest.TestCase):
         for name in ('root','base','page','config','content','identity'):
             self.assertEqual(len(re.findall(rf'\bconst\s+{name}\b',source)),1,name)
 
-    def test_unit_mark_is_one_svg(self):
-        path=ROOT/'assets/unit-mark.svg'; root=ET.parse(path).getroot()
-        self.assertEqual(root.tag,'{http://www.w3.org/2000/svg}svg')
-        self.assertEqual(sum(1 for node in root.iter() if node.tag=='{http://www.w3.org/2000/svg}svg'),1)
+    def test_official_unit_mark_is_the_single_shared_logo(self):
+        mark = ROOT / 'assets' / 'official-unit-mark.png'
+        self.assertTrue(mark.exists())
+        self.assertFalse((ROOT / 'assets' / 'file_00000000a0d081f5b3d9f5b6c823911e.png').exists())
+        self.assertFalse((ROOT / 'assets' / 'unit-mark.svg').exists())
+        self.assertIn("logo: 'assets/official-unit-mark.png'", (ROOT / 'data/site-config.js').read_text())
+        home = self.parse(ROOT / 'index.html')
+        hero_marks = [attrs for tag, attrs in home.starts if tag == 'img' and 'hero-mark' in attrs.get('class', '').split()]
+        self.assertEqual(len(hero_marks), 1)
+        self.assertEqual(hero_marks[0].get('src'), 'assets/official-unit-mark.png')
+
+    def test_official_unit_mark_motion_and_fit_are_responsive(self):
+        css = (ROOT / 'styles.css').read_text()
+        hero = re.search(r'\.hero-mark\s*\{([^}]*)\}', css, re.S).group(1)
+        brand = re.search(r'\.brand img\s*\{([^}]*)\}', css, re.S).group(1)
+        for rule in (hero, brand):
+            self.assertIn('object-fit: contain', rule)
+        self.assertIn('animation: mark-arrive', hero)
+        self.assertIn('animation: brand-mark-arrive', brand)
 
     def test_every_page_has_unique_html_ids(self):
         for path in HTML_FILES:
