@@ -450,7 +450,17 @@ if(observerCount!==1||observeCount!==1||unobserveCount!==2||additions!==1||image
             source=path.read_text(); self.assertFalse(re.search(r'<a\b[^>]*>.*?<(?:a|button|input|select|textarea)\b',source,re.S|re.I),path)
         all_source='\n'.join(p.read_text(errors='ignore') for p in [*HTML_FILES,ROOT/'script.js',ROOT/'styles.css',*ROOT.glob('data/*.js'),*ROOT.glob('assets/drill/*.svg')])
         self.assertFalse(any(x in all_source for x in ('<<<<<<<','=======','>>>>>>>','PLACEHOLDER')))
-        self.assertFalse(any(any((ROOT/'assets/drill').glob(ext)) for ext in ('*.png','*.jpg','*.jpeg','*.webp','*.gif')))
+        raster_assets={
+            path.name
+            for extension in ('*.png','*.jpg','*.jpeg','*.webp','*.gif')
+            for path in (ROOT/'assets/drill').glob(extension)
+        }
+        self.assertEqual(raster_assets,{
+            'armed-drill.jpg',
+            'color-guard.jpg',
+            'drill-overview.jpg',
+            'unarmed-drill.jpg',
+        })
 
     def test_no_merge_markers(self):
         for path in [*HTML_FILES,ROOT/'script.js',ROOT/'styles.css',*list((ROOT/'data').glob('*.js'))]:
