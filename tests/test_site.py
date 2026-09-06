@@ -2,7 +2,6 @@
 import re
 import subprocess
 import unittest
-import hashlib
 from difflib import SequenceMatcher
 from html.parser import HTMLParser
 from pathlib import Path
@@ -133,7 +132,7 @@ class SiteTests(unittest.TestCase):
         for name in expected:
             path=ROOT/'pages'/f'{name}.html'; self.assertTrue(path.exists(),path)
             parser=self.parse(path); tags=[tag for tag,_ in parser.starts]
-            self.assertEqual(tags.count('h1'),1); self.assertEqual(tags.count('figure'),1)
+            self.assertEqual(tags.count('h1'),1); self.assertEqual(tags.count('figure'),0)
             self.assertIn(('a','athletics-and-fitness.html'),parser.refs)
             self.assertNotIn('more information is coming',' '.join(parser.text).lower())
         assessment=(ROOT/'pages/physical-fitness-assessments.html').read_text().lower()
@@ -146,40 +145,14 @@ class SiteTests(unittest.TestCase):
         self.assertEqual(positions,sorted(positions)); self.assertIn('four teams',derby); self.assertIn('alpha',derby); self.assertIn('bravo',derby)
 
     def test_fitness_visuals_are_unique_accessible_and_motion_safe(self):
-        expected={'athletics-and-fitness':'fitness-overview.svg','pt-team':'pt-team.svg','physical-fitness-assessments':'fitness-assessments.svg','klondike-derby':'klondike-derby.svg'}
-        semantics={
-            'fitness-overview.svg': ('track','track-lanes','runner-1','runner-2'),
-            'pt-team.svg': ('relay-lanes','runner','finish-marker'),
-            'fitness-assessments.svg': ('push-up-cadet','run-station','curl-up-station','plank-station'),
-            'klondike-derby.svg': ('sled','pull-rope','fence-obstacle','snowman','air-rifle','target'),
-        }
-        seen=[]; compositions=[]
-        self.assertEqual(sorted(path.name for path in (ROOT/'assets/fitness').iterdir()),sorted(expected.values()))
-        for page,asset in expected.items():
-            parser=self.parse(ROOT/'pages'/f'{page}.html')
-            images=[attrs for tag,attrs in parser.starts if tag=='img' and '/fitness/' in attrs.get('src','')]
-            self.assertEqual(len(images),1,page); self.assertTrue(images[0].get('alt','').strip()); self.assertEqual(images[0].get('loading'),'lazy')
-            self.assertEqual(images[0]['src'],f'../assets/fitness/{asset}')
-            hooks=[attrs for tag,attrs in parser.starts if tag=='figure' and 'data-program-visual' in attrs]
-            self.assertEqual(len(hooks),1,page)
-            svg=(ROOT/'assets/fitness'/asset).read_text(); root=ET.fromstring(svg); ns='{http://www.w3.org/2000/svg}'
-            self.assertEqual(root.tag,f'{ns}svg'); self.assertEqual(root.get('viewBox'),'0 0 720 420')
-            titles=root.findall(f'{ns}title'); descs=root.findall(f'{ns}desc')
-            self.assertEqual(len(titles),1); self.assertEqual(len(descs),1)
-            self.assertEqual(root.get('aria-labelledby','').split(),[titles[0].get('id'),descs[0].get('id')])
-            ids=re.findall(r'\bid="([^"]+)"',svg); self.assertEqual(len(ids),len(set(ids)),asset)
-            self.assertFalse(root.findall(f'.//{ns}image')); self.assertFalse(root.findall(f'.//{ns}script'))
-            self.assertNotRegex(svg,r'\bon[a-z]+\s*=|data:image/|(?:href|src)=["\']https?://')
-            self.assertNotRegex(' '.join(root.itertext()),r'(?i)\b(name\s*tag|rank|insignia|cadet\s+[A-Z][a-z]+)\b')
-            self.assertEqual(root.get('data-motion-state'),'final')
-            self.assertIn('svg:target .gold-trace',svg); self.assertIn('.motion-layer',svg); self.assertIn('.ambient-glow',svg)
-            self.assertIn('@keyframes',svg); self.assertIn('prefers-reduced-motion: reduce',svg); self.assertNotRegex(svg,r'animation[^;}]*\binfinite\b')
-            for semantic_id in semantics[asset]: self.assertIn(semantic_id,ids,asset)
-            geometry='|'.join(node.get('d') or node.get('points') or node.get('transform') or '' for node in root.iter() if node.tag in {f'{ns}path',f'{ns}polygon',f'{ns}g'})
-            compositions.append(hashlib.sha256(geometry.encode()).hexdigest())
-            seen.append(asset)
-        self.assertEqual(len(seen),len(set(seen)))
-        self.assertEqual(len(set(compositions)),4)
+        fitness_pages = {'athletics-and-fitness', 'pt-team', 'physical-fitness-assessments', 'klondike-derby'}
+        self.assertEqual(list((ROOT / 'assets/fitness').glob('*.svg')), [])
+        for name in fitness_pages:
+            parser = self.parse(ROOT / 'pages' / f'{name}.html')
+            images = [attrs for tag, attrs in parser.starts if tag == 'img' and '/fitness/' in attrs.get('src', '')]
+            hooks = [attrs for tag, attrs in parser.starts if tag == 'figure' and 'data-program-visual' in attrs]
+            self.assertEqual(images, [], name)
+            self.assertEqual(hooks, [], name)
 
     def test_fitness_standards_have_checked_in_crm_provenance(self):
         reference=ROOT/'references/crm-3rd_edition-fitness.txt'
@@ -297,50 +270,10 @@ class SiteTests(unittest.TestCase):
         self.assertNotRegex(renderer,r"element\(['\"](?:button|input|select|textarea)['\"]")
 
     def test_drill_visual_guides_are_unique_accessible_and_motion_safe(self):
-        expected={
-            'drill-and-ceremony.html': 'drill-overview.svg',
-            'color-guard.html': 'color-guard.svg',
-            'drill-team.html': 'drill-team.svg',
-            'unarmed-drill.html': 'unarmed-drill.svg',
-            'armed-drill.html': 'armed-drill.svg',
-            'unarmed-exhibition.html': 'unarmed-exhibition.svg',
-            'armed-exhibition.html': 'armed-exhibition.svg',
-        }
-        referenced=[]
-        for page,asset in expected.items():
-            with self.subTest(page=page,asset=asset):
-                parser=self.parse(ROOT/'pages'/page)
-                matches=[target for tag,target in parser.refs if tag=='img' and target==f'../assets/drill/{asset}']
-                self.assertEqual(len(matches),1)
-                image_tags=[attrs for tag,attrs in parser.starts if tag=='img' and attrs.get('src')==matches[0]]
-                self.assertEqual(len(image_tags),1)
-                self.assertTrue(image_tags[0].get('alt','').strip())
-                self.assertEqual(image_tags[0].get('loading'),'lazy')
-                self.assertIn('figure',[tag for tag,_ in parser.starts])
-                self.assertIn('figcaption',[tag for tag,_ in parser.starts])
-                referenced.extend(matches)
-
-                svg_path=ROOT/'assets'/'drill'/asset
-                self.assertTrue(svg_path.exists())
-                svg=svg_path.read_text(encoding='utf-8')
-                root=ET.fromstring(svg)
-                ns='{http://www.w3.org/2000/svg}'
-                self.assertEqual(root.tag,f'{ns}svg')
-                titles=root.findall(f'{ns}title'); descriptions=root.findall(f'{ns}desc')
-                self.assertEqual(len(titles),1)
-                self.assertEqual(len(descriptions),1)
-                labelled_by=root.get('aria-labelledby','').split()
-                self.assertEqual(labelled_by,[titles[0].get('id'),descriptions[0].get('id')])
-                self.assertNotIn('TEXT',''.join(root.itertext()))
-                self.assertIn('@keyframes',svg)
-                self.assertIn('prefers-reduced-motion: reduce',svg)
-                ids=re.findall(r'\bid="([^"]+)"',svg)
-                self.assertEqual(len(ids),len(set(ids)))
-        self.assertEqual(len(referenced),len(set(referenced)))
-
-        css=(ROOT/'styles.css').read_text(encoding='utf-8')
-        self.assertRegex(css,r'\.visual-guide\s*\{[^}]*grid-template-columns:',re.S)
-        self.assertRegex(css,r'\.visual-guide img\s*\{[^}]*max-width:\s*100%')
+        drill_pages = {'drill-and-ceremony', 'color-guard', 'drill-team', 'unarmed-drill', 'armed-drill', 'unarmed-exhibition', 'armed-exhibition'}
+        for name in drill_pages:
+            source = (ROOT / 'pages' / f'{name}.html').read_text()
+            self.assertNotRegex(source, r'<(?:img|picture|svg)\b[^>]*(?:/drill/|data-program-visual)', name)
 
     def drill_records(self):
         source=(ROOT/'data/content.js').read_text(encoding='utf-8')
@@ -374,86 +307,29 @@ class SiteTests(unittest.TestCase):
         self.assertTrue(all(re.search(r'\benabled:\s*true\b',r) for r in records))
 
     def test_each_drill_page_has_one_distinct_visual(self):
-        pages=['drill-and-ceremony','color-guard','drill-team','unarmed-drill','armed-drill','unarmed-exhibition','armed-exhibition']
-        assets=[]; hashes=[]
-        for name in pages:
-            parser=self.parse(ROOT/'pages'/f'{name}.html')
-            images=[attrs for tag,attrs in parser.starts if tag=='img' and '/drill/' in attrs.get('src','')]
-            self.assertEqual(len(images),1,name); assets.append(images[0]['src'])
-            raw=(ROOT/'assets'/'drill'/Path(images[0]['src']).name).read_text()
-            normalized=re.sub(r'\s+|\b(?:id|aria-labelledby)="[^"]*"','',raw)
-            hashes.append(hashlib.sha256(normalized.encode()).hexdigest())
-        self.assertEqual(len(set(assets)),7); self.assertEqual(len(set(hashes)),7)
+        drill_pages = {'drill-and-ceremony', 'color-guard', 'drill-team', 'unarmed-drill', 'armed-drill', 'unarmed-exhibition', 'armed-exhibition'}
+        for name in drill_pages:
+            parser = self.parse(ROOT / 'pages' / f'{name}.html')
+            images = [attrs for tag, attrs in parser.starts if tag == 'img' and '/drill/' in attrs.get('src', '')]
+            self.assertEqual(images, [], name)
 
     def test_drill_visuals_are_accessible_and_motion_safe(self):
-        viewboxes=set()
-        compositions=[]
-        for path in sorted((ROOT/'assets/drill').glob('*.svg')):
-            svg=path.read_text(); root=ET.fromstring(svg); ns='{http://www.w3.org/2000/svg}'
-            viewboxes.add(root.get('viewBox'))
-            title=root.findall(f'{ns}title'); desc=root.findall(f'{ns}desc')
-            self.assertEqual(len(title),1,path); self.assertEqual(len(desc),1,path)
-            self.assertGreater(len(''.join(title[0].itertext()).strip()),8)
-            self.assertGreater(len(''.join(desc[0].itertext()).strip()),20)
-            self.assertEqual(root.get('aria-labelledby','').split(),[title[0].get('id'),desc[0].get('id')])
-            self.assertEqual(root.get('data-motion-state'),'final',path)
-            self.assertEqual(root.get('data-drill-artwork'),'one-shot',path)
-            self.assertIn('@keyframes',svg); self.assertIn('prefers-reduced-motion: reduce',svg)
-            self.assertNotRegex(svg,r'animation[^;}]*\binfinite\b',path)
-            self.assertRegex(svg,r'\.is-active\s+\.motion-layer',path)
-            ids=re.findall(r'\bid="([^"]+)"',svg); self.assertEqual(len(ids),len(set(ids)),path)
-            self.assertFalse(root.findall(f'.//{ns}image'),path)
-            self.assertFalse(root.findall(f'.//{ns}script'),path)
-            self.assertNotRegex(svg,r'\bon[a-z]+\s*=|data:image/|(?:href|src)=["\']https?://',path)
-            self.assertNotRegex(' '.join(root.itertext()),r'(?i)\b(name\s*tag|rank|shoulder\s*cord|glove|insignia)\b',path)
-            # Geometry, rather than paint or identifiers, must distinguish each scene.
-            geometry='|'.join(node.get('d') or node.get('points') or node.get('transform') or '' for node in root.iter() if node.tag in {f'{ns}path',f'{ns}polygon',f'{ns}g'})
-            compositions.append(hashlib.sha256(geometry.encode()).hexdigest())
-        self.assertEqual(viewboxes,{'0 0 720 420'})
-        self.assertEqual(len(compositions),7)
-        self.assertEqual(len(set(compositions)),7)
+        self.assertEqual(list((ROOT / 'assets/drill').glob('*.svg')), [])
 
     def test_program_animation_controller_is_idempotent_and_one_shot(self):
-        source=(ROOT/'script.js').read_text(encoding='utf-8')
-        self.assertEqual(len(re.findall(r'function initializeProgramVisuals\s*\(',source)),1)
-        self.assertNotIn('initializeDrillVisuals',source); self.assertNotIn('data-drill-visual',source)
-        body=re.search(r'function initializeProgramVisuals\(\)\s*\{(.*?)\n  \}',source,re.S).group(1)
-        self.assertIn("querySelectorAll('[data-program-visual]')",body)
-        self.assertIn('dataset.programMotionInitialized',body)
-        self.assertEqual(body.count('new IntersectionObserver'),1)
-        self.assertIn("classList.add('is-active')",body)
-        self.assertIn('observer.unobserve',body)
-        self.assertIn("matchMedia('(prefers-reduced-motion: reduce)')",body)
-        self.assertEqual(source.count('initializeProgramVisuals();'),1)
-        function_source=re.search(r'(function initializeProgramVisuals\(\)\s*\{.*?\n  \})\n\n  function initialize\(',source,re.S).group(1)
-        harness=f"""
-let observerCount=0, observeCount=0, unobserveCount=0, additions=0;
-const images=[{{src:'drill.svg#old',currentSrc:'drill.svg#old'}},{{src:'fitness.svg',currentSrc:'fitness.svg'}}];
-const visuals=images.map(image=>({{dataset:{{}},classList:{{add:()=>additions++}},querySelector:()=>image}}));
-global.document={{querySelectorAll:()=>visuals}};
-global.window=global;
-global.matchMedia=()=>({{matches:false}});
-global.IntersectionObserver=class {{ constructor(callback){{observerCount++;this.callback=callback;global.observer=this}} observe(){{observeCount++}} unobserve(){{unobserveCount++}} }};
-{function_source}
-initializeProgramVisuals(); initializeProgramVisuals();
-const entries=visuals.map(target=>({{isIntersecting:true,target}})); observer.callback(entries); observer.callback(entries);
-if(observerCount!==1||observeCount!==2||unobserveCount!==2||additions!==2||images.some(image=>!image.src.endsWith('#play')||image.src.includes('#old'))) process.exit(1);
-"""
-        subprocess.run(['node','-e',harness],cwd=ROOT,check=True,capture_output=True,text=True)
-
-        for reduced,observer_available in ((True,True),(False,False)):
-            fallback=f"""let additions=0; const visuals=[0,1].map(()=>({{dataset:{{}},classList:{{add:()=>additions++}},querySelector:()=>null}}));
-global.document={{querySelectorAll:()=>visuals}}; global.window=global; global.matchMedia=()=>({{matches:{str(reduced).lower()}}});
-{'global.IntersectionObserver=class { constructor(){ process.exit(2) } };' if observer_available else ''}
-{function_source}
-initializeProgramVisuals(); if(additions!==2||visuals.some(v=>v.dataset.programMotionComplete!=='true')) process.exit(1);"""
-            subprocess.run(['node','-e',fallback],cwd=ROOT,check=True,capture_output=True,text=True)
+        source = (ROOT / 'script.js').read_text(encoding='utf-8')
+        css = (ROOT / 'styles.css').read_text(encoding='utf-8')
+        self.assertNotIn('initializeProgramVisuals', source)
+        self.assertNotIn('data-program-visual', source)
+        self.assertNotIn('data-program-visual', css)
+        self.assertNotIn('.drill-visual', css)
+        self.assertNotIn('.program-visual', css)
 
     def test_drill_detail_copy_is_not_repeated(self):
         for path in sorted((ROOT/'pages').glob('*.html')):
             if path.stem not in {'color-guard','drill-team','unarmed-drill','armed-drill','unarmed-exhibition','armed-exhibition'}: continue
             parser=self.parse(path); tags=[tag for tag,_ in parser.starts]
-            self.assertEqual(tags.count('h1'),1); self.assertEqual(tags.count('figure'),1)
+            self.assertEqual(tags.count('h1'),1); self.assertEqual(tags.count('figure'),0)
             self.assertEqual(sum(1 for tag,attrs in parser.starts if isinstance(attrs,dict) and 'program-overview' in attrs.get('class','').split()),1)
             blocks=[' '.join(t.split()).lower() for t in re.findall(r'<(?:p|figcaption)[^>]*>(.*?)</(?:p|figcaption)>',path.read_text(),re.S) if len(' '.join(t.split()))>25]
             for i,left in enumerate(blocks):
