@@ -28,23 +28,39 @@ class SiteTests(unittest.TestCase):
     def parse(self, path):
         parser=DocumentParser(); parser.feed(path.read_text(encoding='utf-8')); return parser
 
-    def test_drill_card_has_dedicated_structural_page(self):
+    def test_team_cards_have_dedicated_structural_pages(self):
         content=(ROOT/'data/content.js').read_text(encoding='utf-8')
-        drill_entries=re.findall(r"\{[^{}]*\bid:\s*'drill'[^{}]*\}",content)
-        self.assertEqual(len(drill_entries),1,'expected exactly one drill content entry')
-        url=re.search(r"\burl:\s*'([^']+)'",drill_entries[0]).group(1)
-        self.assertEqual(url,'pages/drill-and-ceremony.html')
+        teams_body=re.search(r"\bteams:\s*\[(.*?)\n\s*\]",content,re.S).group(1)
+        records=re.findall(r"\{[^{}]*\}",teams_body)
+        expected={
+            'drill': 'pages/drill-and-ceremony.html',
+            'fitness': 'pages/athletics-and-fitness.html',
+            'academics': 'pages/academic-teams.html',
+            'service': 'pages/community-service.html',
+        }
+        enabled_ids={
+            re.search(r"\bid:\s*'([^']+)'",record).group(1)
+            for record in records if re.search(r"\benabled:\s*true\b",record)
+        }
+        self.assertEqual(set(expected),enabled_ids)
 
-        path=ROOT/url
-        self.assertTrue(path.exists(),f'missing drill page: {path}')
-        parser=self.parse(path); tags=[item[0] for item in parser.starts]
-        for name in ('doctype','html','head','body','main'):
-            self.assertEqual(tags.count(name),1,f'{path}: expected one {name}')
-        self.assertEqual(parser.mounts.count('data-site-header'),1)
-        self.assertEqual(parser.mounts.count('data-site-footer'),1)
-        self.assertEqual(parser.ids.count('main-content'),1)
-        self.assertEqual(len(parser.ids),len(set(parser.ids)),f'{path}: duplicate HTML id')
-        self.assertIn(('a','teams.html'),parser.refs)
+        for content_id, expected_url in expected.items():
+            with self.subTest(id=content_id,url=expected_url):
+                matches=[record for record in records if re.search(rf"\bid:\s*'{re.escape(content_id)}'",record)]
+                self.assertEqual(len(matches),1,f'expected exactly one {content_id} teams entry')
+                url=re.search(r"\burl:\s*'([^']+)'",matches[0]).group(1)
+                self.assertEqual(url,expected_url)
+
+                path=ROOT/url
+                self.assertTrue(path.exists(),f'missing team page: {path}')
+                parser=self.parse(path); tags=[item[0] for item in parser.starts]
+                for name in ('doctype','html','head','body','main'):
+                    self.assertEqual(tags.count(name),1,f'{path}: expected one {name}')
+                self.assertEqual(parser.mounts.count('data-site-header'),1)
+                self.assertEqual(parser.mounts.count('data-site-footer'),1)
+                self.assertEqual(parser.ids.count('main-content'),1)
+                self.assertEqual(len(parser.ids),len(set(parser.ids)),f'{path}: duplicate HTML id')
+                self.assertIn(('a','teams.html'),parser.refs)
 
     def test_every_html_has_one_document_and_shared_regions(self):
         for path in HTML_FILES:

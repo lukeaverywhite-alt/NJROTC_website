@@ -5,9 +5,9 @@
 window.SITE_CONTENT = {
   teams: [
     { id: 'drill', title: 'Drill & Ceremony', description: 'Develop precision, discipline, and teamwork through armed and unarmed drill.', url: 'pages/drill-and-ceremony.html', category: 'Precision', order: 10, enabled: true, verifiedOn: '2026-09-05' },
-    { id: 'fitness', title: 'Athletics & Fitness', description: 'Build healthy habits and resilience through inclusive physical challenges.', url: 'pages/teams.html', category: 'Readiness', order: 20, enabled: true, verifiedOn: '2026-09-05' },
-    { id: 'academics', title: 'Academic Teams', description: 'Put classroom knowledge to work in collaborative, fast-paced competitions.', url: 'pages/teams.html', category: 'Knowledge', order: 30, enabled: true, verifiedOn: '2026-09-05' },
-    { id: 'service', title: 'Community Service', description: 'Make a meaningful difference through projects in Bethel and nearby communities.', url: 'pages/teams.html', category: 'Citizenship', order: 40, enabled: true, verifiedOn: '2026-09-05' }
+    { id: 'fitness', title: 'Athletics & Fitness', description: 'Build healthy habits and resilience through inclusive physical challenges.', url: 'pages/athletics-and-fitness.html', category: 'Readiness', order: 20, enabled: true, verifiedOn: '2026-09-05' },
+    { id: 'academics', title: 'Academic Teams', description: 'Put classroom knowledge to work in collaborative, fast-paced competitions.', url: 'pages/academic-teams.html', category: 'Knowledge', order: 30, enabled: true, verifiedOn: '2026-09-05' },
+    { id: 'service', title: 'Community Service', description: 'Make a meaningful difference through projects in Bethel and nearby communities.', url: 'pages/community-service.html', category: 'Citizenship', order: 40, enabled: true, verifiedOn: '2026-09-05' }
   ],
   faqs: [
     { id: 'service-obligation', title: 'Does joining NJROTC create a military service obligation?', description: 'No. NJROTC is a citizenship and leadership program and participation does not create a military service obligation.', category: 'Joining', order: 10, enabled: true, verifiedOn: '2026-09-05' },
