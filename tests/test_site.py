@@ -434,4 +434,20 @@ class SiteTests(unittest.TestCase):
         self.assertRegex(css,r'\.creed-heading h1[^}]*color:var\(--gold\)')
         self.assertRegex(css,r'\.creed-oorah[^}]*color:var\(--gold\)[^}]*clamp\(2\.5rem')
 
+    def test_shared_animation_system_is_integrated_and_motion_safe(self):
+        script=(ROOT/'script.js').read_text(encoding='utf-8')
+        css=(ROOT/'styles.css').read_text(encoding='utf-8')
+        weather=(ROOT/'weather.js').read_text(encoding='utf-8')
+        page=(ROOT/'pages/weather.html').read_text(encoding='utf-8')
+        self.assertEqual(script.count('function initializeAnimations('),1)
+        self.assertIn('IntersectionObserver',script)
+        self.assertIn("document.addEventListener('site:content-rendered'",script)
+        self.assertIn("document.dispatchEvent(new CustomEvent('site:content-rendered'))",weather)
+        self.assertIn('data-weather-moon',page)
+        self.assertIn('function moonPhase(',weather)
+        self.assertIn('prefers-reduced-motion:reduce',css)
+        self.assertIn('.reveal-item',css)
+        self.assertIn('.page-exit',css)
+        self.assertIn('.announcement.urgent',css)
+
 if __name__ == '__main__': unittest.main()

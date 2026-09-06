@@ -29,6 +29,12 @@
   const time = value => `${new Intl.DateTimeFormat('en-US',{hour:'numeric',minute:'2-digit',timeZone:'UTC'}).format(localDate(value))} Bethel time`;
   const day = value => new Intl.DateTimeFormat('en-US',{weekday:'short',timeZone:'UTC'}).format(localDate(value));
   const fmt = value => value == null ? '—' : Math.round(value);
+  // Eight-phase approximation based on a known new moon; no extra service is required.
+  function moonPhase(value) {
+    const cycle = 29.53058867;
+    const age = ((value.getTime() - Date.UTC(2000,0,6,18,14)) / 86400000 % cycle + cycle) % cycle;
+    return ['new','waxing-crescent','first-quarter','waxing-gibbous','full','waning-gibbous','last-quarter','waning-crescent'][Math.round(age / cycle * 8) % 8];
+  }
   const url = new URL('https://api.open-meteo.com/v1/forecast');
   Object.entries({latitude:config.latitude,longitude:config.longitude,timezone:config.timezone,temperature_unit:'fahrenheit',wind_speed_unit:'mph',precipitation_unit:'inch',forecast_days:7,current:'temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,visibility',hourly:'temperature_2m,precipitation_probability,weather_code',daily:'weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max'}).forEach(([key,value]) => url.searchParams.set(key,value));
 
@@ -79,10 +85,11 @@
   function render(data) {
     const current = data.current;
     const [condition, effect] = describe(current.weather_code);
-    if (scene) scene.className = `weather-scene ${effect} ${current.is_day ? 'day' : 'night'}`;
+    if (scene) scene.className = `weather-scene ${effect} ${current.is_day ? 'day' : `night moon-${moonPhase(localDate(current.time))}`}`;
     currentRoot.innerHTML = `<div class="weather-current"><div><p>${config.name} · ${current.is_day ? 'Daytime' : 'Nighttime'}</p><h1 id="weather-title">${fmt(current.temperature_2m)}°</h1><h2>${condition}</h2><p class="weather-updated">Updated ${time(current.time)} · Data from Open-Meteo</p></div><div><strong>Today ${fmt(data.daily.temperature_2m_max[0])}° / ${fmt(data.daily.temperature_2m_min[0])}°</strong></div></div><div class="weather-grid"><div class="weather-stat"><span>Feels like</span><strong>${fmt(current.apparent_temperature)}°F</strong></div><div class="weather-stat"><span>Humidity</span><strong>${fmt(current.relative_humidity_2m)}%</strong></div><div class="weather-stat"><span>Wind</span><strong>${fmt(current.wind_speed_10m)} mph ${compass(current.wind_direction_10m)}</strong></div><div class="weather-stat"><span>Visibility</span><strong>${current.visibility == null ? '—' : (current.visibility / 1609.344).toFixed(1)} mi</strong></div><div class="weather-stat"><span>Pressure</span><strong>${current.surface_pressure == null ? '—' : (current.surface_pressure * .02953).toFixed(2)} inHg</strong></div><div class="weather-stat"><span>Precipitation</span><strong>${current.precipitation ?? '—'} in</strong></div><div class="weather-stat"><span>Sunrise</span><strong>${time(data.daily.sunrise[0])}</strong></div><div class="weather-stat"><span>Sunset</span><strong>${time(data.daily.sunset[0])}</strong></div></div>`;
     const start = Math.max(0, data.hourly.time.findIndex(value => value >= current.time));
     if (hourlyRoot) hourlyRoot.innerHTML = data.hourly.time.slice(start,start+24).map((value,i) => { const n=start+i; const [label]=describe(data.hourly.weather_code[n]); return `<article class="forecast-item"><span>${time(value)}</span><strong>${fmt(data.hourly.temperature_2m[n])}°</strong><small>${label}<br>${data.hourly.precipitation_probability[n] ?? 0}% precip.</small></article>`; }).join('');
     if (dailyRoot) dailyRoot.innerHTML = data.daily.time.map((value,i) => { const [label]=describe(data.daily.weather_code[i]); return `<article class="forecast-item"><span>${i ? day(value) : 'Today'}</span><strong>${fmt(data.daily.temperature_2m_max[i])}° / ${fmt(data.daily.temperature_2m_min[i])}°</strong><small>${label}<br>${data.daily.precipitation_probability_max[i] ?? 0}% precip.</small></article>`; }).join('');
+    document.dispatchEvent(new CustomEvent('site:content-rendered'));
   }
 })();
