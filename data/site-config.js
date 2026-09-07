@@ -52,6 +52,7 @@ window.SITE_CONFIG = {
     { label: 'Announcements', href: 'index.html#unit-updates', description: 'Current unit updates and notices' },
     { label: 'Contact Instructors', href: 'pages/contact.html', description: 'Official school contact pathways' },
     { label: 'Cadet Reference Manual', href: 'pages/cadet-reference-manual.html', description: 'Accessible guide and complete third-edition PDF' },
+    { label: 'Cadet Field Manual', href: 'pages/cadet-field-manual.html', description: '12th Edition Master Draft reading room' },
     { label: 'All Cadet Resources', href: 'pages/information-center.html', description: 'Task-based tools and official references' }
   ]
 };

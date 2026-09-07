@@ -54,6 +54,8 @@ The official unit mark is the sole approved raster-logo exception. Other supplie
 
 ## Cadet Reference Manual and provenance
 
+The supplied `CFM 12th Edition Master Draft (0509-LP-002-6028) 17 APR 2024.pdf` has its own reading room at `pages/cadet-field-manual.html`. Keep its **Master Draft** label visible: the site must not represent it as final guidance. The page connects field-manual study to the relevant unit pages without copying potentially conflicting rules into multiple locations. Current instructor direction, the Plan of the Week, and current governing guidance always control.
+
 The checked-in `crm-3rd_edition.pdf` is the complete archived third-edition Cadet Reference Manual. `pages/cadet-reference-manual.html` is an accessible, mobile-friendly topic guide—not a replacement copy of the PDF—and links to both open and download the complete source. The archived national manual does not override current instructor direction, the Plan of the Week, or current governing guidance.
 
 Every manual-derived subject published in HTML must have a narrowly scoped note or extract under `references/`. Name the source (`crm-3rd_edition.pdf`), record the relevant **printed** page numbers (not PDF viewer indices), state exactly what was transcribed or summarized, and document any unit-specific boundary. Avoid unsupported inference and keep Bethel-specific, time-sensitive facts in their existing authoritative location.
