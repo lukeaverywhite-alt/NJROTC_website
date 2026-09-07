@@ -30,7 +30,7 @@ window.SITE_CONTENT = {
   ],
   resources: [
     { id: 'training', title: 'Cadet Creed & Qualifications', description: 'Approved training and advancement materials.', url: 'pages/training.html', category: 'Cadet development', order: 10, enabled: true, verifiedOn: '2026-09-05' },
-    { id: 'blt', title: 'Basic Leadership Training', description: 'Leadership training information and approved resources.', url: 'pages/basic-leadership-training.html', category: 'Cadet development', order: 20, enabled: true, verifiedOn: '2026-09-05' },
+    { id: 'blt', title: 'Basic Leadership Training', description: 'The unit’s required introduction to teamwork, drill, and military bearing.', url: 'pages/basic-leadership-training.html', category: 'Cadet development', order: 20, enabled: true, verifiedOn: '2026-09-07' },
     { id: 'chain', title: 'Chain of Command', description: 'Unit leadership structure and roles.', url: 'pages/chain-of-command.html', category: 'Cadet development', order: 30, enabled: true, verifiedOn: '2026-09-05' },
     { id: 'pow', title: 'Plan of the Week', description: 'Weekly schedule, uniforms, and reminders.', url: 'pages/plan-of-week.html', category: 'Unit information', order: 40, enabled: true, verifiedOn: '2026-09-05' },
     { id: 'faq', title: 'Frequently Asked Questions', description: 'Answers for cadets and families.', url: 'pages/faq.html', category: 'Unit information', order: 50, enabled: true, verifiedOn: '2026-09-05' },

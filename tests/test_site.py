@@ -154,6 +154,19 @@ class SiteTests(unittest.TestCase):
             self.assertEqual(images, [], name)
             self.assertEqual(hooks, [], name)
 
+    def test_blt_page_documents_unit_program(self):
+        page = ROOT / 'pages' / 'basic-leadership-training.html'
+        parser = self.parse(page)
+        visible = ' '.join(' '.join(parser.text).split()).lower()
+        for phrase in ('incoming naval science 1', 'west point', 'danbury army reserve center',
+                       'bethel high school', 'obstacle course', 'humvee pull',
+                       'awards ceremony', 'basic leadership ribbon', 'returns to complete it as an ns2'):
+            self.assertIn(phrase, visible)
+        self.assertNotIn('awaiting verification', visible)
+        ribbons = [attrs for tag, attrs in parser.starts if tag == 'div' and 'blt-ribbon' in attrs.get('class', '')]
+        self.assertEqual(len(ribbons), 1)
+        self.assertIn('yellow basic leadership ribbon', ribbons[0].get('aria-label', '').lower())
+
     def test_fitness_standards_have_checked_in_crm_provenance(self):
         reference=ROOT/'references/crm-3rd_edition-fitness.txt'
         self.assertTrue(reference.exists())
