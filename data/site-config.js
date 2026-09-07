@@ -10,6 +10,13 @@ window.SITE_CONFIG = {
     motto: 'Citizenship · Leadership · Service',
     logo: 'assets/official-unit-mark.png'
   },
+  credentials: {
+    distinguishedUnitAward: 'Navy Distinguished Unit Award',
+    distinction: 'with Academic Honors',
+    awardYears: Array.from({ length: 22 }, (_, index) => 2004 + index),
+    outstandingUnitAward: 'Most Outstanding Unit Award',
+    outstandingYear: 2024
+  },
   featuredEvent: {
     enabled: false,
     // EDIT THESE VALUES only after a real event is confirmed. ISO date example: 2027-05-20T18:00:00-04:00
