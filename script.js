@@ -46,7 +46,7 @@
     if (!mount) return;
     const bar = element('div', 'header-inner site-width');
     const brand = link(identity.shortName || 'Bethel NJROTC', identity.logo ? 'index.html' : 'index.html', 'brand');
-    const logo = element('img'); logo.src = safeUrl(identity.logo || 'assets/unit-mark.svg'); logo.alt = ''; logo.width = 46; logo.height = 46;
+    const logo = element('img'); logo.src = safeUrl(identity.logo || 'assets/file_00000000a0d081f5b3d9f5b6c823911e.png'); logo.alt = ''; logo.width = 46; logo.height = 46;
     brand.prepend(logo); bar.append(brand);
     const nav = element('nav', 'site-nav'); nav.id = 'site-navigation'; nav.setAttribute('aria-label', 'Primary navigation');
     const list = element('ul', 'nav-list');

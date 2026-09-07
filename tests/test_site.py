@@ -7,7 +7,6 @@ from difflib import SequenceMatcher
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit
-import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 HTML_FILES = sorted(ROOT.glob('*.html')) + sorted((ROOT / 'pages').glob('*.html'))
@@ -262,10 +261,13 @@ class SiteTests(unittest.TestCase):
         for name in ('root','base','page','config','content','identity'):
             self.assertEqual(len(re.findall(rf'\bconst\s+{name}\b',source)),1,name)
 
-    def test_unit_mark_is_one_svg(self):
-        path=ROOT/'assets/unit-mark.svg'; root=ET.parse(path).getroot()
-        self.assertEqual(root.tag,'{http://www.w3.org/2000/svg}svg')
-        self.assertEqual(sum(1 for node in root.iter() if node.tag=='{http://www.w3.org/2000/svg}svg'),1)
+    def test_official_unit_mark_is_the_single_shared_logo(self):
+        official='assets/file_00000000a0d081f5b3d9f5b6c823911e.png'
+        self.assertTrue((ROOT/official).is_file())
+        self.assertFalse((ROOT/'assets/unit-mark.svg').exists())
+        self.assertEqual((ROOT/official).read_bytes()[:8],b'\x89PNG\r\n\x1a\n')
+        sources=[ROOT/'index.html',ROOT/'404.html',ROOT/'script.js',ROOT/'data/site-config.js']
+        self.assertTrue(all(official in path.read_text(encoding='utf-8') for path in sources))
 
     def test_every_page_has_unique_html_ids(self):
         for path in HTML_FILES:
