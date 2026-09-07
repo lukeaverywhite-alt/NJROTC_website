@@ -41,13 +41,28 @@
 
   const ordered = records => (Array.isArray(records) ? records : []).filter(item => item && item.enabled !== false).slice().sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
 
+  function uniqueRecords(records, keyFor = record => record.id || record.url || record.href) {
+    const unique = new Map();
+    (Array.isArray(records) ? records : []).forEach(record => {
+      if (!record) return;
+      const key = keyFor(record);
+      if (key && !unique.has(key)) unique.set(key, record);
+    });
+    return [...unique.values()];
+  }
+
   function renderHeader() {
     const mount = document.querySelector('[data-site-header]');
     if (!mount) return;
     const bar = element('div', 'header-inner site-width');
     const brand = link(identity.shortName || 'Bethel NJROTC', identity.logo ? 'index.html' : 'index.html', 'brand');
-    const logo = element('img'); logo.src = safeUrl(identity.logo || 'assets/official-unit-mark.png'); logo.alt = ''; logo.width = 50; logo.height = 49;
-    brand.prepend(logo); bar.append(brand);
+    // The hero is the homepage's single, prominent mark. Interior pages retain
+    // the compact header mark so every page still has a recognizable way home.
+    if (page !== 'home') {
+      const logo = element('img'); logo.src = safeUrl(identity.logo || 'assets/official-unit-mark.png'); logo.alt = ''; logo.width = 50; logo.height = 49;
+      brand.prepend(logo);
+    }
+    bar.append(brand);
     const nav = element('nav', 'site-nav'); nav.id = 'site-navigation'; nav.setAttribute('aria-label', 'Primary navigation');
     const list = element('ul', 'nav-list');
     ordered(window.NAVIGATION).forEach(item => {
@@ -89,10 +104,34 @@
     const contact = link('Contact', 'pages/contact.html'); if (contact) wrap.append(contact); const fragment = document.createDocumentFragment(); fragment.append(wrap); replaceMountContent(mount, fragment, 'footer');
   }
 
+  function renderUnitCredentials() {
+    document.querySelectorAll('[data-unit-credentials]').forEach(mount => {
+      const credentials = config.credentials || {};
+      const years = [...new Set(Array.isArray(credentials.awardYears) ? credentials.awardYears : [])]
+        .filter(year => Number.isInteger(year)).sort((a, b) => a - b);
+      const fragment = document.createDocumentFragment();
+      fragment.append(element('p', 'interface-label', 'Unit credentials'));
+      const heading = element('h2'); heading.id = 'unit-credentials-title';
+      heading.append(document.createTextNode(credentials.distinguishedUnitAward || 'Unit recognition'));
+      if (credentials.distinction) heading.append(' ', element('span', '', credentials.distinction));
+      fragment.append(heading);
+      if (years.length) {
+        const history = element('p', 'award-years');
+        history.setAttribute('aria-label', `Award years ${years.join(', ')}`);
+        years.forEach((year, index) => { if (index) history.append(' ', element('span', '', '/'), ' '); history.append(String(year)); });
+        fragment.append(history);
+      }
+      if (credentials.outstandingUnitAward && credentials.outstandingYear) {
+        const outstanding = element('p', 'outstanding-award');
+        outstanding.append(element('span', '', credentials.outstandingUnitAward), String(credentials.outstandingYear));
+        fragment.append(outstanding);
+      }
+      replaceMountContent(mount, fragment, 'unit-credentials');
+    });
+  }
+
   function renderCollection(mount) {
-    const unique = new Map();
-    ordered(content[mount.dataset.content]).forEach(record => { if (record.id && !unique.has(record.id)) unique.set(record.id, record); });
-    const records = ordered([...unique.values()]);
+    const records = ordered(uniqueRecords(content[mount.dataset.content]));
     const fragment = document.createDocumentFragment();
     if (!records.length) fragment.append(element('p', 'empty-state', 'Verified information is not available yet.'));
     records.slice(0, Number(mount.dataset.limit) || records.length).forEach(record => {
@@ -106,14 +145,14 @@
 
   function renderAnnouncements() {
     const today = new Date().toISOString().slice(0, 10);
-    const records = (window.ANNOUNCEMENTS || []).filter(a => a.enabled !== false && (!a.startDate || a.startDate <= today) && (!a.endDate || a.endDate >= today) && a.message && !/^confirmed announcements will/i.test(a.message));
+    const records = uniqueRecords(window.ANNOUNCEMENTS, a => a.id || `${a.title}\u0000${a.message}`).filter(a => a.enabled !== false && (!a.startDate || a.startDate <= today) && (!a.endDate || a.endDate >= today) && a.message && !/^confirmed announcements will/i.test(a.message));
     document.querySelectorAll('[data-announcements]').forEach(mount => { const fragment=document.createDocumentFragment(); records.forEach(record => { const note=element('aside',`announcement ${record.level || 'normal'}`); const marker=element('span','announcement-marker'); marker.setAttribute('aria-hidden','true'); note.append(marker,element('strong','',record.title),element('p','',record.message)); if(record.link){const more=link('Details',record.link);if(more)note.append(more);} fragment.append(note); }); replaceMountContent(mount,fragment,'announcements'); });
   }
 
-  function renderQuickLinks() { document.querySelectorAll('[data-quick-links]').forEach(mount => { const fragment=document.createDocumentFragment(); (config.quickLinks || []).forEach(item => { const node=link(item.label,item.href,'card'); if(node){node.append(element('span','',item.description));fragment.append(node);} }); replaceMountContent(mount,fragment,'quick-links'); }); }
+  function renderQuickLinks() { document.querySelectorAll('[data-quick-links]').forEach(mount => { const fragment=document.createDocumentFragment(); uniqueRecords(config.quickLinks, item => item.href).forEach(item => { const node=link(item.label,item.href,'card'); if(node){node.append(element('span','',item.description));fragment.append(node);} }); replaceMountContent(mount,fragment,'quick-links'); }); }
   function renderCountdown() { document.querySelectorAll('[data-countdown]').forEach(mount => { const fragment=document.createDocumentFragment(); const event=config.featuredEvent; mount.hidden=!event?.enabled || !event.target; if(!mount.hidden){const days=Math.max(0,Math.ceil((new Date(event.target)-Date.now())/86400000));fragment.append(element('strong','',`${days} days — ${event.name}`),element('p','',event.subtitle || ''));} replaceMountContent(mount,fragment,'countdown'); }); }
   function renderCalendar() { document.querySelectorAll('[data-calendar]').forEach(mount => { const fragment=document.createDocumentFragment(); const url=safeUrl(config.calendar?.embedUrl || ''); if(!url)fragment.append(element('p','empty-state','The verified public unit calendar is not available yet.')); else {const frame=element('iframe');frame.src=url;frame.title='Bethel NJROTC calendar';frame.loading='lazy';fragment.append(frame);} replaceMountContent(mount,fragment,'calendar'); }); }
-  function renderGallery() { document.querySelectorAll('[data-gallery]').forEach(mount => { const fragment=document.createDocumentFragment(); const items=window.GALLERY_ITEMS || []; if(!items.length)fragment.append(element('p','empty-state','No approved gallery images are available yet.')); items.forEach(item => {const src=safeUrl(item.src);if(!src)return;const figure=element('figure','gallery-item');const image=element('img');image.src=src;image.alt=item.alt || '';image.loading='lazy';figure.append(image,element('figcaption','',item.caption || ''));fragment.append(figure);}); replaceMountContent(mount,fragment,'gallery'); }); }
+  function renderGallery() { document.querySelectorAll('[data-gallery]').forEach(mount => { const fragment=document.createDocumentFragment(); const items=uniqueRecords(window.GALLERY_ITEMS, item => item.id || item.src); if(!items.length)fragment.append(element('p','empty-state','No approved gallery images are available yet.')); items.forEach(item => {const src=safeUrl(item.src);if(!src)return;const figure=element('figure','gallery-item');const image=element('img');image.src=src;image.alt=item.alt || '';image.loading='lazy';figure.append(image,element('figcaption','',item.caption || ''));fragment.append(figure);}); replaceMountContent(mount,fragment,'gallery'); }); }
   function renderCurrentYear() { document.querySelectorAll('[data-current-year]').forEach(node => { node.textContent = String(new Date().getFullYear()); }); }
 
 
@@ -169,7 +208,9 @@
   }
 
   function initialize() {
-    renderHeader(); initializeTheme(); renderFooter(); renderAnnouncements(); renderQuickLinks(); renderCountdown(); renderCalendar(); renderGallery(); renderCurrentYear();
+    if (document.documentElement.dataset.siteInitialized) return;
+    document.documentElement.dataset.siteInitialized = 'true';
+    renderHeader(); initializeTheme(); renderFooter(); renderUnitCredentials(); renderAnnouncements(); renderQuickLinks(); renderCountdown(); renderCalendar(); renderGallery(); renderCurrentYear();
     document.querySelectorAll('[data-content]').forEach(renderCollection);
     initializePhotoVisuals(); initializeAnimations(); initializePageTransitions();
     if (document.documentElement.dataset.siteListenersBound) return;

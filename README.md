@@ -28,7 +28,7 @@ Do not duplicate managed records in HTML. Stable IDs must be unique, `order` val
 | Collections (teams, FAQs, resources, schedules, events) | `data/content.js` |
 | Announcements | `data/announcements.js` |
 | Gallery records | `data/gallery.js` |
-| Identity, public calendar embed, contact, weather, event settings | `data/site-config.js` |
+| Identity, unit credentials, public calendar embed, contact, weather, event settings | `data/site-config.js` |
 
 Desktop dropdowns and the mobile menu are generated from the same categorized navigation records. Calendar is a Cadet Resources destination at `pages/calendar.html`; configure only its verified, public embed URL at `SITE_CONFIG.calendar.embedUrl` in `data/site-config.js`. Empty configuration intentionally produces a clear empty state.
 
@@ -40,7 +40,7 @@ Announcements support `normal`, `important`, and `urgent` levels plus optional `
 
 ## Logo and binary policy
 
-`assets/official-unit-mark.png` is the shared unit mark used by both the home-page hero and the site header. Replace that file in place to update both placements without creating duplicate logo assets; preserve a near-square aspect ratio and transparent background when possible. `assets/favicon.svg` is its small-size companion.
+`assets/official-unit-mark.png` is the shared unit-mark source. It appears prominently in the home-page hero and as a compact home link on interior pages, never twice in one view. Replace that file in place without creating duplicate logo assets; preserve a near-square aspect ratio and transparent background when possible. `assets/favicon.svg` is its small-size companion.
 
 The official unit mark is the sole approved raster-logo exception. Other supplied reference images should be archived outside this patch-based repository unless they are approved site content. `.gitattributes` classifies raster assets as binary to prevent misleading text diffs. Do not introduce Git LFS unless every contributor and GitHub Pages deployment explicitly supports it.
 

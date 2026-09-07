@@ -30,24 +30,75 @@ class SiteTests(unittest.TestCase):
     def parse(self, path):
         parser=DocumentParser(); parser.feed(path.read_text(encoding='utf-8')); return parser
 
-    def test_homepage_credentials_follow_logo_and_include_award_history(self):
+    def test_homepage_credentials_have_one_mount_and_one_source_of_truth(self):
         homepage = ROOT / 'index.html'
         source = homepage.read_text(encoding='utf-8')
         parser = self.parse(homepage)
-        visible = ' '.join(' '.join(parser.text).split())
         logo_position = source.index('class="mark-console"')
         credentials_position = source.index('class="unit-credentials"')
         self.assertLess(logo_position, credentials_position)
-        self.assertIn('Navy Distinguished Unit Award', visible)
-        self.assertIn('with Academic Honors', visible)
-        self.assertIn('Most Outstanding Unit Award 2024', visible)
-        for year in range(2004, 2026):
-            self.assertIn(str(year), visible)
+        self.assertEqual(source.count('data-unit-credentials'), 1)
         self.assertIn('aria-labelledby="unit-credentials-title"', source)
+
+        config = (ROOT / 'data' / 'site-config.js').read_text(encoding='utf-8')
+        self.assertEqual(config.count("distinguishedUnitAward: 'Navy Distinguished Unit Award'"), 1)
+        self.assertEqual(config.count("outstandingUnitAward: 'Most Outstanding Unit Award'"), 1)
+        self.assertIn('Array.from({ length: 22 }, (_, index) => 2004 + index)', config)
+
+        script = (ROOT / 'script.js').read_text(encoding='utf-8')
+        self.assertIn('function renderUnitCredentials()', script)
+        self.assertIn("replaceMountContent(mount, fragment, 'unit-credentials')", script)
 
         styles = (ROOT / 'styles.css').read_text(encoding='utf-8')
         self.assertIn('@keyframes credentials-arrive', styles)
         self.assertIn('@media(prefers-reduced-motion:reduce)', styles)
+
+    def test_homepage_hero_composition_is_unique_and_complete(self):
+        homepage = ROOT / 'index.html'
+        source = homepage.read_text(encoding='utf-8')
+        parser = self.parse(homepage)
+        class_counts = Counter(
+            class_name
+            for _, attrs in parser.starts
+            if isinstance(attrs, dict)
+            for class_name in attrs.get('class', '').split()
+        )
+        for class_name in ('mark-stack', 'hero-mark', 'hero-copy', 'unit-credentials',
+                           'hero-actions', 'announcement-zone', 'unit-status'):
+            self.assertEqual(class_counts[class_name], 1, class_name)
+        self.assertEqual(parser.ids.count('home-title'), 1)
+        self.assertEqual(parser.ids.count('unit-credentials-title'), 0)
+        self.assertEqual((ROOT / 'script.js').read_text().count("heading.id = 'unit-credentials-title'"), 1)
+        credentials = re.findall(r'<aside class="unit-credentials"[^>]*data-unit-credentials[^>]*></aside>', source)
+        self.assertEqual(len(credentials), 1)
+
+        styles = (ROOT / 'styles.css').read_text(encoding='utf-8')
+        self.assertIn('.hero-copy h1', styles)
+        self.assertNotIn('.hero-heading h1', styles)
+        animation_names = re.findall(r'animation:\s*([\w-]+)', '\n'.join(
+            rule for rule in re.findall(r'[^{}]+\{[^{}]*\}', styles)
+            if any(selector in rule for selector in ('.hero-', '.unit-credentials', '.status-indicator'))
+        ))
+        for animation_name in animation_names:
+            self.assertRegex(styles, rf'@keyframes\s+{re.escape(animation_name)}\b')
+
+    def test_shared_renderer_is_idempotent_and_deduplicates_managed_material(self):
+        script = (ROOT / 'script.js').read_text(encoding='utf-8')
+        initialize = re.search(r'function initialize\(\) \{(.*?)\n  \}', script, re.S).group(1)
+        guard = initialize.index('dataset.siteInitialized')
+        self.assertLess(guard, initialize.index('renderHeader()'))
+        self.assertIn("dataset.siteInitialized = 'true'", initialize)
+        self.assertIn('mount.replaceChildren(fragment)', script)
+        for managed_material in ('content[mount.dataset.content]', 'window.ANNOUNCEMENTS',
+                                 'config.quickLinks', 'window.GALLERY_ITEMS'):
+            self.assertRegex(script, rf'uniqueRecords\({re.escape(managed_material)}(?:,|\))')
+
+        # The full-size homepage mark is the only logo image rendered on home;
+        # the header renderer adds its compact mark only on interior pages.
+        home = self.parse(ROOT / 'index.html')
+        logos = [attrs for tag, attrs in home.starts if tag == 'img' and attrs.get('src') == 'assets/official-unit-mark.png']
+        self.assertEqual(len(logos), 1)
+        self.assertIn("if (page !== 'home')", script)
 
     def test_team_cards_have_dedicated_structural_pages(self):
         content=(ROOT/'data/content.js').read_text(encoding='utf-8')
@@ -446,7 +497,8 @@ class SiteTests(unittest.TestCase):
     def test_rendering_twice_does_not_duplicate_drill_cards(self):
         source=(ROOT/'script.js').read_text(encoding='utf-8')
         body=re.search(r'function renderCollection\(mount\) \{(.*?)\n  \}',source,re.S).group(1)
-        self.assertIn('new Map',body)
+        self.assertIn('uniqueRecords(',body)
+        self.assertIn('new Map',re.search(r'function uniqueRecords\(.*?\n  \}',source,re.S).group(0))
         self.assertIn('replaceMountContent(',body)
         self.assertIn("element(record.url ? 'a' : 'article', 'card')",body)
         self.assertNotRegex(body,r"element\(['\"](?:button|input|select|textarea)['\"]")
