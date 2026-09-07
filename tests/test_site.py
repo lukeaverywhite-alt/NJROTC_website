@@ -49,6 +49,38 @@ class SiteTests(unittest.TestCase):
         self.assertIn('@keyframes credentials-arrive', styles)
         self.assertIn('@media(prefers-reduced-motion:reduce)', styles)
 
+    def test_homepage_hero_composition_is_unique_and_complete(self):
+        homepage = ROOT / 'index.html'
+        source = homepage.read_text(encoding='utf-8')
+        parser = self.parse(homepage)
+        class_counts = Counter(
+            class_name
+            for _, attrs in parser.starts
+            if isinstance(attrs, dict)
+            for class_name in attrs.get('class', '').split()
+        )
+        for class_name in ('mark-stack', 'hero-mark', 'hero-copy', 'unit-credentials',
+                           'hero-actions', 'announcement-zone', 'unit-status'):
+            self.assertEqual(class_counts[class_name], 1, class_name)
+        self.assertEqual(parser.ids.count('home-title'), 1)
+        self.assertEqual(parser.ids.count('unit-credentials-title'), 1)
+        credentials = re.search(r'<aside class="unit-credentials".*?</aside>', source, re.S)
+        self.assertIsNotNone(credentials)
+        award_years = re.search(r'<p class="award-years"[^>]*>(.*?)</p>', credentials.group(0), re.S)
+        self.assertIsNotNone(award_years)
+        for year in range(2004, 2026):
+            self.assertEqual(award_years.group(1).count(str(year)), 1, year)
+
+        styles = (ROOT / 'styles.css').read_text(encoding='utf-8')
+        self.assertIn('.hero-copy h1', styles)
+        self.assertNotIn('.hero-heading h1', styles)
+        animation_names = re.findall(r'animation:\s*([\w-]+)', '\n'.join(
+            rule for rule in re.findall(r'[^{}]+\{[^{}]*\}', styles)
+            if any(selector in rule for selector in ('.hero-', '.unit-credentials', '.status-indicator'))
+        ))
+        for animation_name in animation_names:
+            self.assertRegex(styles, rf'@keyframes\s+{re.escape(animation_name)}\b')
+
     def test_team_cards_have_dedicated_structural_pages(self):
         content=(ROOT/'data/content.js').read_text(encoding='utf-8')
         teams_body=re.search(r"\bteams:\s*\[(.*?)\n\s*\]",content,re.S).group(1)
