@@ -299,6 +299,12 @@ class SiteTests(unittest.TestCase):
         for dynamic in ('data-announcements','data-calendar','data-countdown','data-quick-links'):
             self.assertLessEqual(text.count(dynamic),1)
 
+    def test_homepage_hero_regions_are_present_once(self):
+        home=self.parse(ROOT/'index.html')
+        classes=[attrs.get('class','').split() for _,attrs in home.starts if isinstance(attrs,dict)]
+        for class_name in ('mark-stack','mark-console','hero-mark','unit-credentials','hero-copy'):
+            self.assertEqual(sum(class_name in names for names in classes),1,class_name)
+
     def test_local_targets_exist_and_paths_do_not_escape(self):
         for path in HTML_FILES:
             for _, target in self.parse(path).refs:
