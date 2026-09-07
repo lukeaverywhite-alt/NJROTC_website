@@ -268,6 +268,24 @@ class SiteTests(unittest.TestCase):
         self.assertEqual((ROOT/official).read_bytes()[:8],b'\x89PNG\r\n\x1a\n')
         sources=[ROOT/'index.html',ROOT/'404.html',ROOT/'script.js',ROOT/'data/site-config.js']
         self.assertTrue(all(official in path.read_text(encoding='utf-8') for path in sources))
+        mark = ROOT / 'assets' / 'official-unit-mark.png'
+        self.assertTrue(mark.exists())
+        self.assertFalse((ROOT / 'assets' / 'file_00000000a0d081f5b3d9f5b6c823911e.png').exists())
+        self.assertFalse((ROOT / 'assets' / 'unit-mark.svg').exists())
+        self.assertIn("logo: 'assets/official-unit-mark.png'", (ROOT / 'data/site-config.js').read_text())
+        home = self.parse(ROOT / 'index.html')
+        hero_marks = [attrs for tag, attrs in home.starts if tag == 'img' and 'hero-mark' in attrs.get('class', '').split()]
+        self.assertEqual(len(hero_marks), 1)
+        self.assertEqual(hero_marks[0].get('src'), 'assets/official-unit-mark.png')
+
+    def test_official_unit_mark_motion_and_fit_are_responsive(self):
+        css = (ROOT / 'styles.css').read_text()
+        hero = re.search(r'\.hero-mark\s*\{([^}]*)\}', css, re.S).group(1)
+        brand = re.search(r'\.brand img\s*\{([^}]*)\}', css, re.S).group(1)
+        for rule in (hero, brand):
+            self.assertIn('object-fit: contain', rule)
+        self.assertIn('animation: mark-arrive', hero)
+        self.assertIn('animation: brand-mark-arrive', brand)
 
     def test_every_page_has_unique_html_ids(self):
         for path in HTML_FILES:

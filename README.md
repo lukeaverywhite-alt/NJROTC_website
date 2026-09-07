@@ -43,6 +43,9 @@ Announcements support `normal`, `important`, and `urgent` levels plus optional `
 `assets/file_00000000a0d081f5b3d9f5b6c823911e.png` is the official unit mark and the single shared logo used by the home page, error page, and generated site header. `assets/favicon.svg` remains the small-size browser icon. Obtain unit approval before replacing either asset, and update `identity.logo` if the official logo path changes.
 
 Do not create resized, cropped, optimized, or otherwise duplicated raster versions of the official unit mark. `.gitattributes` classifies raster assets as binary to prevent misleading text diffs. Do not introduce Git LFS unless every contributor and GitHub Pages deployment explicitly supports it.
+`assets/official-unit-mark.png` is the shared unit mark used by both the home-page hero and the site header. Replace that file in place to update both placements without creating duplicate logo assets; preserve a near-square aspect ratio and transparent background when possible. `assets/favicon.svg` is its small-size companion.
+
+The official unit mark is the sole approved raster-logo exception. Other supplied reference images should be archived outside this patch-based repository unless they are approved site content. `.gitattributes` classifies raster assets as binary to prevent misleading text diffs. Do not introduce Git LFS unless every contributor and GitHub Pages deployment explicitly supports it.
 
 ## Themes and accessibility
 
