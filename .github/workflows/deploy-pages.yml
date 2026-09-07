@@ -31,6 +31,8 @@ jobs:
           mkdir _site
           cp index.html 404.html styles.css script.js weather.js _site/
           cp -R pages assets data _site/
+          cp "CFM 12th Edition Master Draft (0509-LP-002-6028) 17 APR 2024.pdf" _site/
+          cp "2024 CRM 4th Edition (0509-LP-002-6029) 18 APR 2024.pdf" crm-3rd_edition.pdf _site/
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:

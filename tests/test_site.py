@@ -322,6 +322,43 @@ class SiteTests(unittest.TestCase):
         for phrase in ('Current instructor direction','Plan of the Week','current governing guidance','take precedence'):
             self.assertIn(phrase,visible)
 
+    def test_cadet_field_manual_has_a_dedicated_integrated_reading_room(self):
+        filename = 'CFM 12th Edition Master Draft (0509-LP-002-6028) 17 APR 2024.pdf'
+        pdf = ROOT / filename
+        page = ROOT / 'pages' / 'cadet-field-manual.html'
+        self.assertTrue(pdf.exists())
+        self.assertGreater(pdf.stat().st_size, 0)
+
+        parser = self.parse(page)
+        visible = ' '.join(' '.join(parser.text).split())
+        self.assertIn('12th Edition Master Draft', visible)
+        self.assertIn('0509-LP-002-6028', visible)
+        self.assertIn('17 April 2024', visible)
+        self.assertIn('Current instructor direction', visible)
+        self.assertIn('do not combine or guess', visible)
+
+        pdf_href = f'../{filename}'
+        pdf_links = [attrs for tag, attrs in parser.starts if tag == 'a' and attrs.get('href') == pdf_href]
+        self.assertGreaterEqual(len(pdf_links), 3)
+        frames = [attrs for tag, attrs in parser.starts if tag == 'iframe']
+        self.assertEqual(len(frames), 1)
+        self.assertTrue(frames[0].get('title'))
+        self.assertTrue(frames[0].get('src', '').startswith(pdf_href))
+
+        for companion in ('plan-of-week.html', 'drill-and-ceremony.html', 'tutorials.html',
+                          'chain-of-command.html', 'athletics-and-fitness.html',
+                          'cadet-reference-manual.html'):
+            self.assertIn(('a', companion), parser.refs)
+
+        navigation = (ROOT / 'data/navigation.js').read_text(encoding='utf-8')
+        content = (ROOT / 'data/content.js').read_text(encoding='utf-8')
+        record = r"id: 'cadet-field-manual'.*?url: 'pages/cadet-field-manual.html'.*?enabled: true"
+        self.assertRegex(navigation, record)
+        self.assertRegex(content, record)
+
+        workflow = (ROOT / '.github/workflows/deploy-pages.yml').read_text(encoding='utf-8')
+        self.assertIn(f'cp "{filename}" _site/', workflow)
+
     def test_cadet_reference_topics_have_dedicated_accessible_pages(self):
         topics = {
             'advancement': '7–9', 'uniforms': '10–25', 'ranks': '26–33',
