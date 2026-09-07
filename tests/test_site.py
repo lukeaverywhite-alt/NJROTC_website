@@ -374,13 +374,13 @@ class SiteTests(unittest.TestCase):
             for path in (ROOT/'assets/drill').iterdir()
             if path.suffix.lower() in {'.png','.jpg','.jpeg','.webp','.gif'}
         }
-        self.assertEqual(raster_assets,{'drill-overview.jpg','armed-drill.jpg','color-guard.jpg','unarmed-drill.jpg'})
+        self.assertEqual(raster_assets,{'Drill-Overview.JPEG','armed-drill.jpg','color-guard.jpg','unarmed-drill.jpg'})
 
     def test_drill_photos_have_approved_content_and_interactions(self):
         expected={
             'armed-drill': ('armed-drill.jpg','Cadet Gavin Kopreski commands the armed platoon as Cadet Toshan Bhattacharya serves as the unit guidon during the Brewster Drill Meet in Brewster, New York, on December 13, 2025.'),
             'color-guard': ('color-guard.jpg','Cadets Michael Connors, Audrey Steele, Luke White, and Nolan Shaw present the colors while marching for the Tunnel to Towers Foundation at the Bethel High School track in Bethel, Connecticut, on June 28, 2026.'),
-            'drill-team': ('drill-overview.jpg','Ten uniformed cadets are arranged outdoors, with one facing the other nine in three rows; no drill rifles, flags, or other drill equipment are visible.'),
+            'drill-team': ('Drill-Overview.JPEG','Ten uniformed cadets are arranged outdoors, with one facing the other nine in three rows; no drill rifles, flags, or other drill equipment are visible.'),
             'unarmed-drill': ('unarmed-drill.jpg','Cadet Gavin Kopreski commands the unarmed platoon during the Washington Drill Meet in Washingtonville, New York, on November 8, 2025.'),
         }
         for page,(asset,caption) in expected.items():
