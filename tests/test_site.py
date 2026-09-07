@@ -465,7 +465,8 @@ class SiteTests(unittest.TestCase):
         self.assertNotIn('Verification required',contact)
 
     def test_javascript_syntax_and_single_renderers(self):
-        subprocess.run(['node','--check','script.js'],cwd=ROOT,check=True,capture_output=True,text=True)
+        for path in sorted(ROOT.glob('*.js')) + sorted((ROOT / 'data').glob('*.js')):
+            subprocess.run(['node','--check',str(path.relative_to(ROOT))],cwd=ROOT,check=True,capture_output=True,text=True)
         source=(ROOT/'script.js').read_text()
         for name in ('safeUrl','element','link','renderHeader','renderFooter','initializeTheme','closeMobile','renderCollection','renderAnnouncements','renderQuickLinks','renderCountdown','renderCalendar','renderGallery','renderCurrentYear'):
             self.assertEqual(len(re.findall(rf'function\s+{name}\s*\(',source)),1,name)
@@ -620,6 +621,10 @@ class SiteTests(unittest.TestCase):
         css=(ROOT/'styles.css').read_text(); script=(ROOT/'script.js').read_text()
         self.assertIn('12s linear infinite',css); self.assertIn('.photo-visual.is-selected',css)
         self.assertIn("querySelectorAll('[data-photo-visual]')",script)
+        clear=re.search(r'function clearPhotoSelection\(except\) \{(.*?)\n  \}',script,re.S).group(1)
+        self.assertIn("photo.classList.remove('is-selected')",clear)
+        self.assertIn("photo.setAttribute('aria-pressed', 'false')",clear)
+        self.assertIn("if (!event.target.closest('[data-photo-visual]')) clearPhotoSelection()",script)
 
     def test_no_merge_markers(self):
         workflow_files=list((ROOT/'.github'/'workflows').glob('*.yml'))+list((ROOT/'.github'/'workflows').glob('*.yaml'))

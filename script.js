@@ -157,6 +157,13 @@
   function renderGallery() { document.querySelectorAll('[data-gallery]').forEach(mount => { const fragment=document.createDocumentFragment(); const items=uniqueRecords(window.GALLERY_ITEMS, item => item.id || item.src); if(!items.length)fragment.append(element('p','empty-state','No approved gallery images are available yet.')); items.forEach(item => {const src=safeUrl(item.src);if(!src)return;const figure=element('figure','gallery-item');const image=element('img');image.src=src;image.alt=item.alt || '';image.loading='lazy';figure.append(image,element('figcaption','',item.caption || ''));fragment.append(figure);}); replaceMountContent(mount,fragment,'gallery'); }); }
   function renderCurrentYear() { document.querySelectorAll('[data-current-year]').forEach(node => { node.textContent = String(new Date().getFullYear()); }); }
 
+  function clearPhotoSelection(except) {
+    document.querySelectorAll('[data-photo-visual]').forEach(photo => {
+      if (photo === except) return;
+      photo.classList.remove('is-selected');
+      photo.setAttribute('aria-pressed', 'false');
+    });
+  }
 
   function initializePhotoVisuals() {
     document.querySelectorAll('[data-photo-visual]').forEach(visual => {
@@ -164,9 +171,9 @@
       visual.dataset.photoInteractionInitialized = 'true';
       const toggle = () => {
         const selected = !visual.classList.contains('is-selected');
-        document.querySelectorAll('[data-photo-visual].is-selected').forEach(photo => photo.classList.remove('is-selected'));
+        clearPhotoSelection(visual);
         visual.classList.toggle('is-selected', selected);
-        document.querySelectorAll('[data-photo-visual]').forEach(photo => photo.setAttribute('aria-pressed',String(photo.classList.contains('is-selected'))));
+        visual.setAttribute('aria-pressed', String(selected));
       };
       visual.addEventListener('click', event => { event.stopPropagation(); toggle(); });
       visual.addEventListener('keydown', event => {
@@ -217,8 +224,8 @@
     initializePhotoVisuals(); initializeAnimations(); initializePageTransitions();
     if (document.documentElement.dataset.siteListenersBound) return;
     document.documentElement.dataset.siteListenersBound = 'true';
-    document.addEventListener('click', event => { if (!event.target.closest('.nav-group')) closeDropdowns(); if (!event.target.closest('[data-photo-visual]')) document.querySelectorAll('[data-photo-visual].is-selected').forEach(photo => photo.classList.remove('is-selected')); });
-    document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeDropdowns(); closeMobile(); document.querySelector('.menu-button')?.focus(); } });
+    document.addEventListener('click', event => { if (!event.target.closest('.nav-group')) closeDropdowns(); if (!event.target.closest('[data-photo-visual]')) clearPhotoSelection(); });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeDropdowns(); closeMobile(); clearPhotoSelection(); document.querySelector('.menu-button')?.focus(); } });
     document.querySelector('.site-nav')?.addEventListener('focusout', event => { const group = event.target.closest('.nav-group'); if (group && !group.contains(event.relatedTarget)) group.querySelector('.nav-trigger')?.setAttribute('aria-expanded', 'false'); });
   }
 
