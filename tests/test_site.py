@@ -559,6 +559,51 @@ class SiteTests(unittest.TestCase):
         self.assertIn('.page-exit',css)
         self.assertIn('.announcement.urgent',css)
 
+    def test_events_library_is_complete_clickable_and_nonduplicative(self):
+        content=(ROOT/'data/content.js').read_text(encoding='utf-8')
+        body=re.search(r"\bevents:\s*\[(.*?)\n\s*\]",content,re.S).group(1)
+        records=re.findall(r"\{[^{}]*\}",body)
+        expected=[
+            ('basic-leadership-training','pages/basic-leadership-training.html'),
+            ('fitness-assessments','pages/physical-fitness-assessments.html'),
+            ('drill-meets','pages/drill-and-ceremony.html'),
+            ('klondike-derby','pages/klondike-derby.html'),
+            ('military-ball','pages/military-ball.html'),
+        ]
+        actual=[(re.search(r"\bid:\s*'([^']+)'",record).group(1),re.search(r"\burl:\s*'([^']+)'",record).group(1)) for record in records]
+        self.assertEqual(actual,expected)
+        self.assertEqual(len(actual),len(set(actual)))
+        self.assertTrue(all(re.search(r'\benabled:\s*true\b',record) for record in records))
+        orders=[int(re.search(r"\border:\s*(\d+)",record).group(1)) for record in records]
+        self.assertEqual(orders,sorted(set(orders)))
+        for _,route in expected: self.assertTrue((ROOT/route).exists(),route)
+
+        hub=ROOT/'pages/events.html'; parser=self.parse(hub)
+        self.assertEqual((hub.read_text(encoding='utf-8')).count('data-content="events"'),1)
+        self.assertIn(('a','calendar.html'),parser.refs)
+        self.assertIn(('a','plan-of-week.html'),parser.refs)
+        navigation=(ROOT/'data/navigation.js').read_text(encoding='utf-8')
+        self.assertEqual(navigation.count("url: 'pages/events.html'"),1)
+        self.assertEqual(navigation.count("url: 'pages/military-ball.html'"),1)
+
+    def test_military_ball_page_documents_the_complete_experience(self):
+        path=ROOT/'pages/military-ball.html'; parser=self.parse(path)
+        visible=' '.join(' '.join(parser.text).split()).lower()
+        for phrase in ('dining & etiquette','military bearing','waltz practice','ns1 cadets',
+                       'sword arch','guest of honor','senior waltz','service dress blue',
+                       'amber room colonnade','aqua turf club','video archive'):
+            self.assertIn(phrase,visible)
+        for anchor in ('prepare','experience','attire','venues','archive'):
+            self.assertEqual(parser.ids.count(anchor),1)
+        self.assertNotIn('data-content="events"',path.read_text(encoding='utf-8'))
+        self.assertIn(('a','events.html'),parser.refs)
+        self.assertIn(('a','crm-uniforms.html'),parser.refs)
+        self.assertIn(('a','crm-customs.html'),parser.refs)
+        self.assertIn(('a','calendar.html'),parser.refs)
+        self.assertIn(('a','plan-of-week.html'),parser.refs)
+        self.assertIn('current instructor direction',visible)
+        self.assertIn('current governing navy njrotc guidance take precedence',visible)
+
 
     def test_chain_of_command_detail_pages_are_complete_and_linked(self):
         content=(ROOT/'data/content.js').read_text(encoding='utf-8')
