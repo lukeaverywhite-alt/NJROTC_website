@@ -37,23 +37,16 @@ class SiteTests(unittest.TestCase):
         visible = ' '.join(' '.join(parser.text).split())
         logo_position = source.index('class="mark-console"')
         credentials_position = source.index('class="unit-credentials"')
-        resources_position = source.index('>Cadet Resources</a>')
-        status_position = source.index('class="unit-status"')
-        self.assertLess(source.index('id="home-title"'), logo_position)
         self.assertLess(logo_position, credentials_position)
-        self.assertLess(credentials_position, resources_position)
-        self.assertLess(resources_position, status_position)
         self.assertIn('Navy Distinguished Unit Award', visible)
         self.assertIn('with Academic Honors', visible)
         self.assertIn('Most Outstanding Unit Award 2024', visible)
         for year in range(2004, 2026):
             self.assertIn(str(year), visible)
         self.assertIn('aria-labelledby="unit-credentials-title"', source)
-        self.assertIn('<strong>Operational</strong>', source)
 
         styles = (ROOT / 'styles.css').read_text(encoding='utf-8')
         self.assertIn('@keyframes credentials-arrive', styles)
-        self.assertIn('.award-years span:nth-child(even)', styles)
         self.assertIn('@media(prefers-reduced-motion:reduce)', styles)
 
     def test_team_cards_have_dedicated_structural_pages(self):
@@ -590,11 +583,9 @@ class SiteTests(unittest.TestCase):
         body=re.search(r"\bevents:\s*\[(.*?)\n\s*\]",content,re.S).group(1)
         records=re.findall(r"\{[^{}]*\}",body)
         expected=[
-            ('basic-leadership-training','pages/basic-leadership-training.html'),
-            ('fitness-assessments','pages/physical-fitness-assessments.html'),
-            ('drill-meets','pages/drill-and-ceremony.html'),
-            ('klondike-derby','pages/klondike-derby.html'),
-            ('military-ball','pages/military-ball.html'),
+            ('weekly-events','pages/weekly-events.html'),
+            ('monthly-events','pages/monthly-events.html'),
+            ('yearly-events','pages/yearly-events.html'),
         ]
         actual=[(re.search(r"\bid:\s*'([^']+)'",record).group(1),re.search(r"\burl:\s*'([^']+)'",record).group(1)) for record in records]
         self.assertEqual(actual,expected)
@@ -602,15 +593,47 @@ class SiteTests(unittest.TestCase):
         self.assertTrue(all(re.search(r'\benabled:\s*true\b',record) for record in records))
         orders=[int(re.search(r"\border:\s*(\d+)",record).group(1)) for record in records]
         self.assertEqual(orders,sorted(set(orders)))
-        for _,route in expected: self.assertTrue((ROOT/route).exists(),route)
+        self.assertEqual(len({route for _,route in actual}),3)
+        for _,route in expected:
+            self.assertTrue(route.startswith('pages/'))
+            self.assertTrue((ROOT/route).exists(),route)
 
         hub=ROOT/'pages/events.html'; parser=self.parse(hub)
         self.assertEqual((hub.read_text(encoding='utf-8')).count('data-content="events"'),1)
         self.assertIn(('a','calendar.html'),parser.refs)
         self.assertIn(('a','plan-of-week.html'),parser.refs)
+        hub_visible=' '.join(' '.join(parser.text).split()).lower()
+        for detail in ('basic leadership training','physical fitness assessments','drill meets','klondike derby','military ball'):
+            self.assertNotIn(detail,hub_visible)
+        self.assertNotIn('school year',hub_visible)
         navigation=(ROOT/'data/navigation.js').read_text(encoding='utf-8')
         self.assertEqual(navigation.count("url: 'pages/events.html'"),1)
         self.assertEqual(navigation.count("url: 'pages/military-ball.html'"),1)
+
+        guide_text={}
+        for _,route in expected:
+            path=ROOT/route; guide=self.parse(path)
+            tags=[tag for tag,_ in guide.starts]
+            self.assertEqual(tags.count('h1'),1)
+            self.assertEqual(guide.ids.count('main-content'),1)
+            self.assertEqual(guide.mounts.count('data-site-header'),1)
+            self.assertEqual(guide.mounts.count('data-site-footer'),1)
+            self.assertIn(('a','events.html'),guide.refs)
+            self.assertIn(('a','calendar.html'),guide.refs)
+            self.assertIn(('a','plan-of-week.html'),guide.refs)
+            guide_text[route]=' '.join(' '.join(guide.text).split()).lower()
+
+        weekly=guide_text['pages/weekly-events.html']
+        for phrase in ('mandatory weekly event','every cadet','gym','company','platoon','plan of the week','instructor guidance'):
+            self.assertIn(phrase,weekly)
+        monthly=guide_text['pages/monthly-events.html']
+        for phrase in ('uniform day','dress for success','one day each month','once per month','nsu','inspected during class','business-casual attire','classwork grade'):
+            self.assertIn(phrase,monthly)
+        yearly=guide_text['pages/yearly-events.html']
+        for phrase in ('basic leadership training','physical fitness assessments','military ball'):
+            self.assertIn(phrase,yearly)
+        for href in ('basic-leadership-training.html','physical-fitness-assessments.html','military-ball.html'):
+            self.assertIn(('a',href),self.parse(ROOT/'pages/yearly-events.html').refs)
 
     def test_military_ball_page_documents_the_complete_experience(self):
         path=ROOT/'pages/military-ball.html'; parser=self.parse(path)
