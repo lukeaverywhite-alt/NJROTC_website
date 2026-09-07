@@ -22,13 +22,55 @@ class DocumentParser(HTMLParser):
         if 'id' in values: self.ids.append(values['id'])
         for key in ('data-site-header','data-site-footer'):
             if key in values: self.mounts.append(key)
-        target=values.get('href') if tag in ('a','link') else values.get('src') if tag in ('img','script','iframe') else None
+        target=values.get('href') if tag in ('a','link') else values.get('src') if tag in ('img','script','iframe','source','track') else None
         if target: self.refs.append((tag,target))
     def handle_data(self, data): self.text.append(data)
 
 class SiteTests(unittest.TestCase):
     def parse(self, path):
         parser=DocumentParser(); parser.feed(path.read_text(encoding='utf-8')); return parser
+
+    def test_tutorial_hierarchy_and_media_contract(self):
+        content=(ROOT/'data/content.js').read_text(encoding='utf-8')
+        navigation=(ROOT/'data/navigation.js').read_text(encoding='utf-8')
+        self.assertEqual(navigation.count("title: 'Video Tutorials'"),1)
+        self.assertEqual(navigation.count("url: 'pages/tutorials.html'"),1)
+        collections={name: re.findall(r"\{[^{}]*\}",body) for name,body in
+                     re.findall(r"(tutorialCategories|tutorialLessons):\s*\[(.*?)\n\s*\]",content,re.S)}
+        self.assertEqual(set(collections),{'tutorialCategories','tutorialLessons'})
+        all_ids=[]
+        for name,records in collections.items():
+            for record in records:
+                if not re.search(r"\benabled:\s*true\b",record): continue
+                for field in ('id','title','description','url','category','order','enabled','verifiedOn'):
+                    self.assertRegex(record,rf"\b{field}:\s*",f'{name}: missing {field}')
+                content_id=re.search(r"\bid:\s*'([^']+)'",record).group(1); all_ids.append(content_id)
+                url=re.search(r"\burl:\s*'([^']+)'",record).group(1)
+                self.assertTrue((ROOT/url).exists(),url)
+        self.assertEqual(len(all_ids),len(set(all_ids)))
+        landing=(ROOT/'pages/tutorials.html').read_text(encoding='utf-8')
+        self.assertEqual(landing.count('data-content="tutorialCategories"'),1)
+
+        lesson_records=collections['tutorialLessons']
+        category_pages={re.search(r"\bcategory:\s*'([^']+)'",r).group(1):
+                        'tutorials-'+re.search(r"\bcategory:\s*'([^']+)'",r).group(1)+'.html'
+                        for r in lesson_records}
+        for record in lesson_records:
+            url=re.search(r"\burl:\s*'([^']+)'",record).group(1); path=ROOT/url
+            parser=self.parse(path); tags=[tag for tag,_ in parser.starts]
+            self.assertEqual(tags.count('video')+tags.count('iframe'),1,path)
+            video=next(attrs for tag,attrs in parser.starts if tag in ('video','iframe'))
+            self.assertTrue(video.get('title') or video.get('aria-label'),path)
+            self.assertEqual(tags.count('track'),1,path)
+            self.assertTrue(video.get('poster'),path)
+            self.assertTrue(re.search(r'class="lesson-description">[^<]+',path.read_text()),path)
+            category=re.search(r"\bcategory:\s*'([^']+)'",record).group(1)
+            self.assertIn(('a',category_pages[category]),parser.refs)
+            self.assertIn('breadcrumb',path.read_text())
+            self.assertIn('lesson-navigation',path.read_text())
+            for tag,target in parser.refs:
+                if tag in ('source','track'):
+                    self.assertTrue((path.parent/urlsplit(target).path).exists(),f'{path}: {target}')
 
     def test_homepage_credentials_have_one_mount_and_one_source_of_truth(self):
         homepage = ROOT / 'index.html'

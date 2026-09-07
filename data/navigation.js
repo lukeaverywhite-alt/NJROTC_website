@@ -5,10 +5,11 @@ window.NAVIGATION = [
     { id: 'pow', title: 'Plan of the Week', url: 'pages/plan-of-week.html', order: 10, enabled: true },
     { id: 'calendar', title: 'Calendar', url: 'pages/calendar.html', order: 20, enabled: true },
     { id: 'info', title: 'All Cadet Resources', url: 'pages/information-center.html', order: 30, enabled: true },
-    { id: 'training', title: 'Creed & Qualifications', url: 'pages/training.html', order: 40, enabled: true },
-    { id: 'cadet-reference-manual', title: 'Cadet Reference Manual', url: 'pages/cadet-reference-manual.html', order: 50, enabled: true },
-    { id: 'weather', title: 'Weather', url: 'pages/weather.html', order: 60, enabled: true },
-    { id: 'wellness', title: 'Wellness', url: 'pages/wellness.html', order: 70, enabled: true }
+    { id: 'tutorials', title: 'Video Tutorials', url: 'pages/tutorials.html', order: 40, enabled: true },
+    { id: 'training', title: 'Creed & Qualifications', url: 'pages/training.html', order: 50, enabled: true },
+    { id: 'cadet-reference-manual', title: 'Cadet Reference Manual', url: 'pages/cadet-reference-manual.html', order: 60, enabled: true },
+    { id: 'weather', title: 'Weather', url: 'pages/weather.html', order: 70, enabled: true },
+    { id: 'wellness', title: 'Wellness', url: 'pages/wellness.html', order: 80, enabled: true }
   ] },
   { id: 'explore', title: 'Explore', order: 30, enabled: true, children: [
     { id: 'faq', title: 'Program Overview & FAQ', url: 'pages/faq.html', order: 10, enabled: true },

@@ -3,6 +3,26 @@
  * dates in YYYY-MM-DD, and verifiedOn current when facts are reviewed.
  */
 window.SITE_CONTENT = {
+  tutorialCategories: [
+    { id: 'tutorial-uniforms', title: 'Uniforms', description: 'Build a complete, inspection-ready uniform one skill at a time.', url: 'pages/tutorials-uniforms.html', category: 'Video tutorials', order: 10, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'tutorial-basic-drill', title: 'Basic Drill', description: 'Practice command response, stationary movements, and marching fundamentals.', url: 'pages/tutorials-basic-drill.html', category: 'Video tutorials', order: 20, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'tutorial-inspections', title: 'Inspection Preparation', description: 'Use a repeatable routine to prepare your uniform, knowledge, and bearing.', url: 'pages/tutorials-inspections.html', category: 'Video tutorials', order: 30, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'tutorial-promotion-boards', title: 'Promotion Board Preparation', description: 'Prepare to report, answer clearly, and demonstrate readiness for responsibility.', url: 'pages/tutorials-promotion-boards.html', category: 'Video tutorials', order: 40, enabled: true, verifiedOn: '2026-09-07' }
+  ],
+  tutorialLessons: [
+    { id: 'tutorial-uniform-assembly', title: 'Uniform Assembly', description: 'Lay out and assemble the assigned uniform in a dependable order.', url: 'pages/tutorial-uniform-assembly.html', category: 'uniforms', order: 10, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'tutorial-insignia-ribbon-placement', title: 'Insignia and Ribbon Placement', description: 'Use current guidance and careful measurements to place insignia, ribbons, and the name tag.', url: 'pages/tutorial-insignia-ribbon-placement.html', category: 'uniforms', order: 20, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'tutorial-grooming', title: 'Grooming', description: 'Complete a neat grooming check that supports proper uniform and headgear wear.', url: 'pages/tutorial-grooming.html', category: 'uniforms', order: 30, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'tutorial-shoe-care', title: 'Shoe Care', description: 'Clean and polish uniform shoes without damaging them.', url: 'pages/tutorial-shoe-care.html', category: 'uniforms', order: 40, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'tutorial-uniform-inspection-checks', title: 'Uniform Inspection Checks', description: 'Run a final head-to-toe check before formation or inspection.', url: 'pages/tutorial-uniform-inspection-checks.html', category: 'uniforms', order: 50, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'tutorial-attention-and-rest', title: 'Attention and Rest Positions', description: 'Practice attention, parade rest, at ease, and rest under instructor direction.', url: 'pages/tutorial-attention-and-rest.html', category: 'basic-drill', order: 60, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'tutorial-facing-movements', title: 'Facing Movements', description: 'Practice right face, left face, and about face with controlled timing.', url: 'pages/tutorial-facing-movements.html', category: 'basic-drill', order: 70, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'tutorial-marching-basics', title: 'Marching Basics', description: 'Practice stepping off, cadence, alignment, and halting with the formation.', url: 'pages/tutorial-marching-basics.html', category: 'basic-drill', order: 80, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'tutorial-inspection-routine', title: 'Personal Inspection Routine', description: 'Build a repeatable uniform, grooming, knowledge, and bearing check.', url: 'pages/tutorial-inspection-routine.html', category: 'inspections', order: 90, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'tutorial-inspection-reporting', title: 'Reporting for Inspection', description: 'Practice reporting, responding, and maintaining military bearing.', url: 'pages/tutorial-inspection-reporting.html', category: 'inspections', order: 100, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'tutorial-promotion-board-reporting', title: 'Reporting to the Board', description: 'Practice entering, reporting, sitting, and departing as currently directed.', url: 'pages/tutorial-promotion-board-reporting.html', category: 'promotion-boards', order: 110, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'tutorial-promotion-board-answers', title: 'Answering Board Questions', description: 'Organize accurate, concise answers and respond professionally when unsure.', url: 'pages/tutorial-promotion-board-answers.html', category: 'promotion-boards', order: 120, enabled: true, verifiedOn: '2026-09-07' }
+  ],
   teams: [
     { id: 'drill', title: 'Drill & Ceremony', description: 'Develop precision, discipline, and teamwork through armed and unarmed drill.', url: 'pages/drill-and-ceremony.html', category: 'Precision', order: 10, enabled: true, verifiedOn: '2026-09-05' },
     { id: 'fitness', title: 'Fitness Competitions', description: 'Build readiness and resilience through PT assessments and team competition.', url: 'pages/athletics-and-fitness.html', category: 'Readiness', order: 20, enabled: true, verifiedOn: '2026-09-06' },
@@ -31,6 +51,7 @@ window.SITE_CONTENT = {
   resources: [
     { id: 'training', title: 'Cadet Creed & Qualifications', description: 'Approved training and advancement materials.', url: 'pages/training.html', category: 'Cadet development', order: 10, enabled: true, verifiedOn: '2026-09-05' },
     { id: 'blt', title: 'Basic Leadership Training', description: 'The unit’s required introduction to teamwork, drill, and military bearing.', url: 'pages/basic-leadership-training.html', category: 'Cadet development', order: 20, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'tutorials', title: 'Video Tutorials', description: 'Instructor-reviewed video lessons for practical cadet preparation.', url: 'pages/tutorials.html', category: 'Cadet development', order: 25, enabled: true, verifiedOn: '2026-09-07' },
     { id: 'chain', title: 'Chain of Command', description: 'Unit leadership structure and roles.', url: 'pages/chain-of-command.html', category: 'Cadet development', order: 30, enabled: true, verifiedOn: '2026-09-05' },
     { id: 'pow', title: 'Plan of the Week', description: 'Weekly schedule, uniforms, and reminders.', url: 'pages/plan-of-week.html', category: 'Unit information', order: 40, enabled: true, verifiedOn: '2026-09-05' },
     { id: 'faq', title: 'Frequently Asked Questions', description: 'Answers for cadets and families.', url: 'pages/faq.html', category: 'Unit information', order: 50, enabled: true, verifiedOn: '2026-09-05' },
