@@ -617,9 +617,8 @@ class SiteTests(unittest.TestCase):
             self.assertEqual(len(parser.ids),len(set(parser.ids)))
             self.assertIn(('a','chain-of-command.html'),parser.refs)
         command=' '.join(self.parse(ROOT/'pages/command-staff.html').text)
-        for value in ('Andrew Ipkevich','Joe Meehan','Lucas Battle','Toshan Bhattacharya','Rachel Ribeiro','Joseph Sachinelli','Kat Kechejian','Baylee Cole','Nolan Godfrey','Gavin Kopreski','Adhwaitha Devasani','Jonah Funk','Cooper Cote','Akhil Sharma','Avni Shah','Brayden Wildman','Jaxon Tarantino','Sophia Gmitter','Eden Kopreski','Bhuvan Dasari','Melyssa Moniz','Samuel Caram','Juliana Esposito','Aziza Macchiarulo','Connor Koke','Zia Fathima Arakal'):
+        for value in ('Andrew Ipkevich','Joe Meehan','Lucas Battle','Toshan Bhattacharya','Rachel Ribeiro','Joseph Sachinelli','Kat Kechejian','Baylee Cole','Nolan Godfrey','Gavin Kopreski','Sarah Borsch','Stephen Gaspar','Adhwaitha Devasani','Jonah Funk','Cooper Cote','Akhil Sharma','Avni Shah','Brayden Wildman','Jaxon Tarantino','Sophia Gmitter','Eden Kopreski','Bhuvan Dasari','Melyssa Moniz','Samuel Caram','Juliana Esposito','Aziza Macchiarulo','Connor Koke','Zia Fathima Arakal'):
             self.assertEqual(command.count(value),1,value)
-        self.assertEqual(command.count('Sarah Borsch'),2)
         departments=' '.join(self.parse(ROOT/'pages/departments.html').text)
         for value in ('Zia Arakal','Arnab Karmokar','Radha Sinha','Prisha Desai','Sam Caram','Nellie Adams','Melyssa Moniz','Michael Connors','Andres Martinez','Wyatt Santorella','Sophia Gmitter','Allison Degiorgio','Zachary Wood','Esmerelda Costa-Bernardo','Allison Hill','Piera Giudice','Cooper Cote','Luke White','Juliana Esposito','Audrey Steele','Dylan Kantor','Colin Arbucci','Amina Macchiarulo','Lily Cohan','Abigail Moore','Zahra Khan','Henry Atkins','Michael Williams','Bhuvan Dasari','Caleb Metcalf','Aneesh Amaram','Aditi Shah'):
             self.assertEqual(departments.count(value),1,value)
@@ -627,7 +626,7 @@ class SiteTests(unittest.TestCase):
         precedence=('Administration','Academic','Drill','Weapons','Manufacturing','1st Lieutenant','Public Affairs','Supply','Physical Fitness','Lady Leadership','GENTS','Information Technology','Environmental')
         positions=[department_source.index(f'<h2>{heading}</h2>') for heading in precedence]
         self.assertEqual(positions,sorted(positions))
-        for outdated in ('Joseph Sacchinelli','Katherine Kechejian','Stephen Gaspar','Cat Katician','Bailey Cole','Gavin Kapreski','Sarah Borsh'):
+        for outdated in ('Joseph Sacchinelli','Katherine Kechejian','Cat Katician','Bailey Cole','Gavin Kapreski','Sarah Borsh'):
             self.assertNotIn(outdated,command)
 
 if __name__ == '__main__': unittest.main()
