@@ -43,3 +43,7 @@ A below-Satisfactory result in any category means no award.
 
 SCOPE NOTE
 The manual does not include a plank event or a plank scoring standard. Bethel NJROTC's fall/spring event selections are unit-specific information and are intentionally distinguished from these CRM Cadet Challenge standards on the website.
+
+WEB GUIDE PUBLICATION NOTE
+Published route: ../pages/crm-fitness.html
+The dedicated topic page faithfully paraphrases the event procedures, classification and ribbon recognition, the current-unit boundary, and safety context for accessible web reading. The detailed values above remain the transcription record used by the existing assessment tables.

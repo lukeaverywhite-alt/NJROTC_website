@@ -1,9 +1,13 @@
-Cadet Reference Manual, Third Edition — Uniforms Guide Note
+Cadet Reference Manual, Third Edition — Uniforms and Grooming Web Guide Provenance
 Source: ../crm-3rd_edition.pdf
 Relevant source location: printed pages 10–25.
+Published route: ../pages/crm-uniforms.html
 
 PUBLISHED SCOPE
-The HTML guide publishes only a navigational summary of general uniform wear, care, appearance, and grooming material. It directs cadets to current unit instructions for the uniform of the day and updated standards.
+The web page faithfully paraphrases the archived manual’s treatment of meaning and care of the uniform; general wear; personal appearance; inspection preparation. Content is organized and normalized for accessible web reading rather than reproduced as page-layout transcription.
+
+OMISSIONS AND ACCESSIBILITY
+Exact historical grooming limits and illustrated placement measurements are not presented as current rules. PDF images could not be verified as clear accessible raster extracts.
 
 REVIEW BOUNDARY
-This is a narrowly scoped provenance note for the corresponding HTML topic, not a substitute for the source. Current instructor direction, the Plan of the Week, and current governing guidance take precedence over this archived manual. Recheck the printed pages against any replacement edition before updating the HTML.
+The source is an archived national manual. Current instructor direction, the Bethel NJROTC Plan of the Week, and current governing Navy NJROTC guidance take precedence. Recheck these printed pages and any replacement edition before revising the web guide. Unit-specific schedules, assignments, assessments, advancement decisions, and uniform direction must remain in their current authoritative locations.

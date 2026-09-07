@@ -1,9 +1,13 @@
-Cadet Reference Manual, Third Edition — Ranks Guide Note
+Cadet Reference Manual, Third Edition — Ranks and Insignia Web Guide Provenance
 Source: ../crm-3rd_edition.pdf
 Relevant source location: printed pages 26–33.
+Published route: ../pages/crm-ranks.html
 
 PUBLISHED SCOPE
-The HTML guide points cadets to the PDF’s illustrated rank and insignia material and does not reproduce visual placement details.
+The web page faithfully paraphrases the archived manual’s treatment of enlisted and officer grade sequences; grade versus billet; recognition and authorized wear. Content is organized and normalized for accessible web reading rather than reproduced as page-layout transcription.
+
+OMISSIONS AND ACCESSIBILITY
+Insignia artwork is not reproduced because a clear accessible raster extraction could not be verified; cadets are directed to the source PDF and current instructors.
 
 REVIEW BOUNDARY
-This is a narrowly scoped provenance note for the corresponding HTML topic, not a substitute for the source. Current instructor direction, the Plan of the Week, and current governing guidance take precedence over this archived manual. Recheck the printed pages against any replacement edition before updating the HTML.
+The source is an archived national manual. Current instructor direction, the Bethel NJROTC Plan of the Week, and current governing Navy NJROTC guidance take precedence. Recheck these printed pages and any replacement edition before revising the web guide. Unit-specific schedules, assignments, assessments, advancement decisions, and uniform direction must remain in their current authoritative locations.

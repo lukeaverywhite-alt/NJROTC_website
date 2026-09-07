@@ -210,6 +210,44 @@ class SiteTests(unittest.TestCase):
         for phrase in ('Current instructor direction','Plan of the Week','current governing guidance','take precedence'):
             self.assertIn(phrase,visible)
 
+    def test_cadet_reference_topics_have_dedicated_accessible_pages(self):
+        topics = {
+            'advancement': '7–9', 'uniforms': '10–25', 'ranks': '26–33',
+            'customs': '34–39', 'leadership': '40–46', 'fitness': '47–49',
+            'awards': '48–56', 'drill': '57–72',
+        }
+        guide = self.parse(ROOT / 'pages/cadet-reference-manual.html')
+        for topic, printed_pages in topics.items():
+            route = f'crm-{topic}.html'
+            self.assertIn(('a', route), guide.refs)
+            page = ROOT / 'pages' / route
+            self.assertTrue(page.exists(), page)
+            parser = self.parse(page); tags = [tag for tag, _ in parser.starts]
+            self.assertEqual(tags.count('h1'), 1)
+            self.assertGreaterEqual(tags.count('h2'), 4)
+            self.assertIn(('a', 'cadet-reference-manual.html'), parser.refs)
+            visible = ' '.join(' '.join(parser.text).split())
+            self.assertIn(f'printed pages {printed_pages}', visible)
+            for phrase in ('Current instructor direction', 'Plan of the Week', 'current governing guidance', 'current Navy NJROTC guidance', 'take precedence'):
+                self.assertIn(phrase, visible)
+            crm_images = [attrs for tag, attrs in parser.starts if tag == 'img' and '/cadet-reference-manual/' in attrs.get('src', '')]
+            for attrs in crm_images:
+                self.assertTrue(attrs.get('alt', '').strip())
+                self.assertNotEqual(Path(attrs['src']).suffix.lower(), '.svg')
+
+    def test_cadet_reference_topic_navigation_is_complete(self):
+        pages = sorted((ROOT / 'pages').glob('crm-*.html'))
+        self.assertEqual(len(pages), 8)
+        for page in pages:
+            parser = self.parse(page)
+            topic_links = [target for tag, target in parser.refs if tag == 'a' and target.startswith('crm-')]
+            self.assertGreaterEqual(len(topic_links), 1, page)
+            self.assertIn(('a', '../crm-3rd_edition.pdf#page=' + {
+                'crm-advancement.html': '7', 'crm-uniforms.html': '10', 'crm-ranks.html': '26',
+                'crm-customs.html': '34', 'crm-leadership.html': '40', 'crm-fitness.html': '47',
+                'crm-awards.html': '48', 'crm-drill.html': '57',
+            }[page.name]), parser.refs)
+
     def test_manual_contextual_links_are_safe_and_resolve(self):
         pages=['training.html','chain-of-command.html','drill-and-ceremony.html','physical-fitness-assessments.html','plan-of-week.html']
         expected={'advancement','leadership','drill','fitness','uniforms'}
