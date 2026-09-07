@@ -20,7 +20,8 @@ window.NAVIGATION = [
     { id: 'schools', title: 'Bethel Public Schools', url: 'https://www.bethel.k12.ct.us/', order: 110, enabled: true }
   ] },
   { id: 'events', title: 'Events', order: 40, enabled: true, children: [
-    { id: 'ball', title: 'Military Ball', url: 'pages/military-ball.html', order: 10, enabled: true }
+    { id: 'all-events', title: 'All Events', url: 'pages/events.html', order: 10, enabled: true },
+    { id: 'ball', title: 'Military Ball', url: 'pages/military-ball.html', order: 20, enabled: true }
   ] },
   { id: 'contact', title: 'Contact', url: 'pages/contact.html', order: 50, enabled: true }
 ];
