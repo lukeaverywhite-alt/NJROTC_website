@@ -54,8 +54,8 @@ window.SITE_CONTENT = {
     { id: 'thursday-friday', title: 'Thursday / Friday', description: 'Schedule not published.', category: 'Daily brief', order: 40, enabled: true, startDate: '', endDate: '', verifiedOn: '2026-09-05' }
   ],
   events: [
-    { id: 'weekly-events', title: 'Weekly Events', description: 'Every week', url: 'pages/weekly-events.html', category: 'Weekly', order: 10, enabled: true, verifiedOn: '2026-09-07' },
-    { id: 'monthly-events', title: 'Monthly Events', description: 'Every month', url: 'pages/monthly-events.html', category: 'Monthly', order: 20, enabled: true, verifiedOn: '2026-09-07' },
-    { id: 'yearly-events', title: 'Yearly Events', description: 'Annual and seasonal', url: 'pages/yearly-events.html', category: 'Yearly', order: 30, enabled: true, verifiedOn: '2026-09-07' }
+    { id: 'weekly-events', title: 'Weekly Readiness', description: 'Review recurring training, company activities, and the current weekly brief.', url: 'pages/weekly-events.html', category: 'Weekly', order: 10, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'monthly-events', title: 'Monthly Rhythm', description: 'Prepare for recurring uniform days, inspections, and monthly expectations.', url: 'pages/monthly-events.html', category: 'Monthly', order: 20, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'yearly-events', title: 'Annual Traditions', description: 'Explore leadership training, assessments, competitions, and formal traditions.', url: 'pages/yearly-events.html', category: 'Yearly', order: 30, enabled: true, verifiedOn: '2026-09-07' }
   ]
 };

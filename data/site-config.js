@@ -48,9 +48,10 @@ window.SITE_CONFIG = {
   },
   quickLinks: [
     { label: 'Plan of the Week', href: 'pages/plan-of-week.html', description: 'Weekly schedule and uniform guidance' },
+    { label: 'Unit Calendar', href: 'pages/calendar.html', description: 'Confirmed dates and activities' },
+    { label: 'Announcements', href: 'index.html#unit-updates', description: 'Current unit updates and notices' },
+    { label: 'Contact Instructors', href: 'pages/contact.html', description: 'Official school contact pathways' },
     { label: 'Cadet Reference Manual', href: 'pages/cadet-reference-manual.html', description: 'Accessible guide and complete third-edition PDF' },
-    { label: 'Chain of Command', href: 'pages/chain-of-command.html', description: 'Unit leadership structure' },
-    { label: 'Information Center', href: 'pages/information-center.html', description: 'Cadet references and resources' },
-    { label: 'Live Weather', href: 'pages/weather.html', description: 'Current conditions for Bethel' }
+    { label: 'All Cadet Resources', href: 'pages/information-center.html', description: 'Task-based tools and official references' }
   ]
 };

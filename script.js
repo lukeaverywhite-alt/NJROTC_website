@@ -68,9 +68,11 @@
     ordered(window.NAVIGATION).forEach(item => {
       const li = element('li', item.children ? 'nav-group' : '');
       if (item.children) {
-        const button = element('button', 'nav-trigger', item.title); button.type = 'button'; button.setAttribute('aria-expanded', 'false');
-        const menu = element('ul', 'dropdown');
-        ordered(item.children).forEach(child => { const a = link(child.title, child.url); if (a) { if (child.id === page) a.setAttribute('aria-current', 'page'); const sub = element('li'); sub.append(a); menu.append(sub); } });
+        const children = ordered(item.children);
+        const button = element('button', 'nav-trigger', item.title); button.type = 'button'; button.setAttribute('aria-expanded', 'false'); button.setAttribute('aria-haspopup', 'true');
+        const menu = element('ul', 'dropdown'); menu.id = `nav-${item.id}`; button.setAttribute('aria-controls', menu.id);
+        if (children.some(child => child.id === page)) button.setAttribute('aria-current', 'page');
+        children.forEach(child => { const a = link(child.title, child.url); if (a) { if (child.id === page) a.setAttribute('aria-current', 'page'); const sub = element('li'); sub.append(a); menu.append(sub); } });
         button.addEventListener('click', () => { closeDropdowns(button); button.setAttribute('aria-expanded', String(button.getAttribute('aria-expanded') !== 'true')); });
         button.addEventListener('keydown', event => { if (event.key === 'ArrowDown') { event.preventDefault(); button.setAttribute('aria-expanded', 'true'); menu.querySelector('a')?.focus(); } });
         li.append(button, menu);

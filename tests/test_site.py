@@ -661,8 +661,10 @@ class SiteTests(unittest.TestCase):
         self.assertIn(('a','calendar.html'),parser.refs)
         self.assertIn(('a','plan-of-week.html'),parser.refs)
         hub_visible=' '.join(' '.join(parser.text).split()).lower()
-        for detail in ('basic leadership training','physical fitness assessments','drill meets','klondike derby','military ball'):
-            self.assertNotIn(detail,hub_visible)
+        for detail in ('operational timeline','scan by cadence','military ball'):
+            self.assertIn(detail,hub_visible)
+        for detail in ('weekly readiness','monthly rhythm','annual traditions'):
+            self.assertIn(detail,content.lower())
         self.assertNotIn('school year',hub_visible)
         navigation=(ROOT/'data/navigation.js').read_text(encoding='utf-8')
         self.assertEqual(navigation.count("url: 'pages/events.html'"),1)
