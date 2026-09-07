@@ -68,6 +68,22 @@ a { color: inherit; } img { max-width: 100%; } button { font: inherit; }
 .page-hero .site-width { position: relative; z-index: 1; }.page-hero h1 { max-width: 900px; font-size: clamp(2.2rem,5vw,4rem); }.page-hero p { max-width: 650px; color: var(--text-secondary); }.breadcrumb { color: var(--gold); font: .76rem ui-monospace,monospace; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; }
 .page-section { padding: 3.5rem 0; }.page-section.alt { background: color-mix(in srgb,var(--surface-deep) 72%,transparent); }.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin-bottom: 1.5rem; }.section-heading h2 { margin: .3rem 0 0; font-size: clamp(1.6rem,3vw,2.35rem); }.section-heading>p { max-width: 34rem; color: var(--text-secondary); }
 .card-grid,[data-content],.two-column,.three-column,.resource-list { display: grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap: 1rem; }.two-column { grid-template-columns: repeat(2,minmax(0,1fr)); }.three-column { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.tutorial-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin-top:1.5rem; }
+.tutorial-grid .card,.tutorial-grid .lesson-card { display:flex; min-height:190px; flex-direction:column; }
+.tutorial-grid .card p,.tutorial-grid .lesson-card p { flex:1; }
+.lesson-shell { overflow:hidden; max-width:1000px; margin-inline:auto; border:1px solid var(--border); background:var(--surface-deep); box-shadow:0 20px 48px rgba(0,0,0,.24); }
+.lesson-video { padding:clamp(.6rem,2vw,1rem); background:#010307; }
+.lesson-video video { display:block; width:100%; aspect-ratio:16 / 9; background:#000; object-fit:contain; }
+.media-status { margin:.75rem 0 0; color:var(--text-secondary); font-size:.9rem; text-align:center; }
+.lesson-details { padding:clamp(1.25rem,4vw,2.5rem); border-top:3px solid var(--gold); }
+.lesson-details h2 { margin:.3rem 0 .7rem; font-size:clamp(1.8rem,4vw,2.6rem); }
+.lesson-description { max-width:760px; color:var(--text-secondary); font-size:1.08rem; }
+.lesson-information { display:grid; grid-template-columns:1.2fr .8fr; gap:1rem; margin:1.5rem 0; }
+.lesson-information section { padding:1rem; border:1px solid var(--border); background:var(--surface-raised); }
+.lesson-information h3 { margin-top:0; }
+.lesson-navigation { display:flex; flex-wrap:wrap; align-items:center; gap:.75rem; margin-top:1.5rem; }
+@media(max-width:900px) { .tutorial-grid { grid-template-columns:1fr; }.lesson-information { grid-template-columns:1fr; } }
+@media(max-width:520px) { .lesson-video { padding:.35rem; }.lesson-details { padding:1rem; }.lesson-navigation { align-items:stretch; flex-direction:column; }.lesson-navigation .button { justify-content:center; text-align:center; } }
 .card,.content-card,.empty-state,.resource-group { position: relative; min-height: 44px; padding: 1.35rem; border: 1px solid var(--border); background: linear-gradient(145deg,color-mix(in srgb,var(--surface-raised) 94%,transparent),color-mix(in srgb,var(--surface-deep) 92%,transparent)); color: inherit; text-decoration: none; box-shadow: 0 12px 28px rgba(0,0,0,.12); }
 .card::after,.content-card::after { content: ""; position: absolute; top: -1px; right: -1px; width: 22px; height: 22px; border-top: 2px solid var(--gold); border-right: 2px solid var(--gold); opacity: .65; }.card { transition: border-color .2s,transform .2s,box-shadow .2s; }.card:hover { transform: translateY(-3px); border-color: var(--gold); box-shadow: 0 12px 35px var(--glow); }.card h2,.content-card h2 { margin: .35rem 0; }.card p,.content-card p,.empty-state p { color: var(--text-secondary); }
 .content-card-link { display:block; text-decoration:none; transition:border-color .2s,transform .2s,box-shadow .2s; }
