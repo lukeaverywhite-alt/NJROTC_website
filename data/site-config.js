@@ -8,7 +8,6 @@ window.SITE_CONFIG = {
     fullName: 'Bethel High School NJROTC',
     location: 'Bethel, Connecticut',
     motto: 'Citizenship · Leadership · Service',
-    logo: 'assets/file_00000000a0d081f5b3d9f5b6c823911e.png'
     logo: 'assets/official-unit-mark.png'
   },
   featuredEvent: {
