@@ -331,7 +331,7 @@ class SiteTests(unittest.TestCase):
             self.assertIn(value,config)
             self.assertIn(value,contact)
         for name,email in (
-            ('Andrew Ivcovich','ivcovicha@bethel.k12.ct.us'),
+            ('Andrew Ipkevich','ivcovicha@bethel.k12.ct.us'),
             ('Joe Meehan','meehanj@bethel.k12.ct.us'),
         ):
             self.assertIn(name,config)
@@ -558,5 +558,26 @@ class SiteTests(unittest.TestCase):
         self.assertIn('.reveal-item',css)
         self.assertIn('.page-exit',css)
         self.assertIn('.announcement.urgent',css)
+
+
+    def test_chain_of_command_detail_pages_are_complete_and_linked(self):
+        content=(ROOT/'data/content.js').read_text(encoding='utf-8')
+        for record_id,route in (('command-staff','pages/command-staff.html'),('departments','pages/departments.html')):
+            record=re.search(rf"\{{ id: '{record_id}'[^\n]+\}}",content)
+            self.assertIsNotNone(record); self.assertIn(f"url: '{route}'",record.group())
+            page=ROOT/route; self.assertTrue(page.exists())
+            parser=self.parse(page); tags=[tag for tag,_ in parser.starts]
+            self.assertEqual(tags.count('h1'),1); self.assertEqual(parser.ids.count('main-content'),1)
+            self.assertEqual(parser.mounts.count('data-site-header'),1); self.assertEqual(parser.mounts.count('data-site-footer'),1)
+            self.assertEqual(len(parser.ids),len(set(parser.ids)))
+            self.assertIn(('a','chain-of-command.html'),parser.refs)
+        command=' '.join(self.parse(ROOT/'pages/command-staff.html').text)
+        for value in ('Andrew Ipkevich','Joe Meehan','Lucas Battle','Toshan Bhattacharya','Rachel Ribeiro','Joe Sacchinelli','Cat Katician','Bailey Cole','Nolan Godfrey','Gavin Kapreski','Sarah Borsh','Stephen Gaspar'):
+            self.assertEqual(command.count(value),1,value)
+        departments=' '.join(self.parse(ROOT/'pages/departments.html').text)
+        for value in ('Cooper Cote','Juliana Esposito','Luke White','Audrey Steele','Mel Moniz','Michael Connors','Buvan Divari','Caleb Metcalf','Radha Sinha','Preesha Desai','Andreas Martinez','Wyatt Santarella','Anish Anuram','Aditi Shah','Sofia Gmitter','Allie DiGiorgio','Esmeralda Costa Bernardo'):
+            self.assertEqual(departments.count(value),1,value)
+        self.assertNotIn('Allison',departments)
+        self.assertNotIn('Connor Koch',departments)
 
 if __name__ == '__main__': unittest.main()
