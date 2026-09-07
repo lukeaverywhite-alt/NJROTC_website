@@ -34,8 +34,9 @@ window.SITE_CONTENT = {
     { id: 'chain', title: 'Chain of Command', description: 'Unit leadership structure and roles.', url: 'pages/chain-of-command.html', category: 'Cadet development', order: 30, enabled: true, verifiedOn: '2026-09-05' },
     { id: 'pow', title: 'Plan of the Week', description: 'Weekly schedule, uniforms, and reminders.', url: 'pages/plan-of-week.html', category: 'Unit information', order: 40, enabled: true, verifiedOn: '2026-09-05' },
     { id: 'faq', title: 'Frequently Asked Questions', description: 'Answers for cadets and families.', url: 'pages/faq.html', category: 'Unit information', order: 50, enabled: true, verifiedOn: '2026-09-05' },
-    { id: 'navy-njrotc', title: 'Official Navy NJROTC website', description: 'Official program reference.', url: 'https://www.netc.navy.mil/NSTC/NJROTC/', category: 'Official reference', order: 60, enabled: true, verifiedOn: '2026-09-05' },
-    { id: 'bethel-schools', title: 'Bethel Public Schools', description: 'Official school district website.', url: 'https://www.bethel.k12.ct.us/', category: 'Official reference', order: 70, enabled: true, verifiedOn: '2026-09-05' }
+    { id: 'cadet-reference-manual', title: 'Cadet Reference Manual', description: 'Accessible topic guide to the archived third-edition national manual, with printed-page references and the complete PDF.', url: 'pages/cadet-reference-manual.html', category: 'Official reference', order: 60, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'navy-njrotc', title: 'Official Navy NJROTC website', description: 'Official program reference.', url: 'https://www.netc.navy.mil/NSTC/NJROTC/', category: 'Official reference', order: 70, enabled: true, verifiedOn: '2026-09-05' },
+    { id: 'bethel-schools', title: 'Bethel Public Schools', description: 'Official school district website.', url: 'https://www.bethel.k12.ct.us/', category: 'Official reference', order: 80, enabled: true, verifiedOn: '2026-09-05' }
   ],
   joining: [
     { id: 'counselor', title: 'Talk with your school counselor', description: 'Contact the Bethel High School Counseling Office through the school’s main number, 203-794-8600, to ask how NJROTC fits into your course plan.', category: 'First steps', order: 10, enabled: true, verifiedOn: '2026-09-06' },

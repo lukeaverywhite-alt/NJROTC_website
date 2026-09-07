@@ -51,3 +51,17 @@ The official unit mark is the sole approved raster-logo exception. Other supplie
 ## GitHub Pages deployment
 
 `.github/workflows/deploy-pages.yml` copies the static site into the Pages artifact and deploys on pushes to `main` or manual dispatch. In repository **Settings → Pages**, select **GitHub Actions** as the source. `.github/workflows/quality.yml` runs the dependency-free regression checks for every pull request and push to `main`; it installs no project packages.
+
+## Cadet Reference Manual and provenance
+
+The checked-in `crm-3rd_edition.pdf` is the complete archived third-edition Cadet Reference Manual. `pages/cadet-reference-manual.html` is an accessible, mobile-friendly topic guide—not a replacement copy of the PDF—and links to both open and download the complete source. The archived national manual does not override current instructor direction, the Plan of the Week, or current governing guidance.
+
+Every manual-derived subject published in HTML must have a narrowly scoped note or extract under `references/`. Name the source (`crm-3rd_edition.pdf`), record the relevant **printed** page numbers (not PDF viewer indices), state exactly what was transcribed or summarized, and document any unit-specific boundary. Avoid unsupported inference and keep Bethel-specific, time-sensitive facts in their existing authoritative location.
+
+When a newer edition becomes available:
+
+1. Preserve the old edition until the replacement source and its authority are verified by an instructor.
+2. Compare every `references/crm-3rd_edition-*.txt` subject with the new edition, recording changed printed pages and substantive differences.
+3. Reconcile the HTML guide and contextual links without replacing verified unit-specific content; update the precedence notice if governing direction requires it.
+4. Rename/update provenance and the PDF links together, update the edition label everywhere, refresh `verifiedOn`, and run the complete regression suite.
+5. Obtain instructor approval before publishing the revised manual-derived guidance.
