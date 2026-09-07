@@ -21,7 +21,10 @@ window.NAVIGATION = [
   ] },
   { id: 'events', title: 'Events', order: 40, enabled: true, children: [
     { id: 'all-events', title: 'All Events', url: 'pages/events.html', order: 10, enabled: true },
-    { id: 'ball', title: 'Military Ball', url: 'pages/military-ball.html', order: 20, enabled: true }
+    { id: 'weekly-events', title: 'Weekly Events', url: 'pages/weekly-events.html', order: 20, enabled: true },
+    { id: 'monthly-events', title: 'Monthly Events', url: 'pages/monthly-events.html', order: 30, enabled: true },
+    { id: 'yearly-events', title: 'Yearly Events', url: 'pages/yearly-events.html', order: 40, enabled: true },
+    { id: 'ball', title: 'Military Ball', url: 'pages/military-ball.html', order: 50, enabled: true }
   ] },
   { id: 'contact', title: 'Contact', url: 'pages/contact.html', order: 50, enabled: true }
 ];

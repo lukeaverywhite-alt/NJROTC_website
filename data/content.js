@@ -54,10 +54,8 @@ window.SITE_CONTENT = {
     { id: 'thursday-friday', title: 'Thursday / Friday', description: 'Schedule not published.', category: 'Daily brief', order: 40, enabled: true, startDate: '', endDate: '', verifiedOn: '2026-09-05' }
   ],
   events: [
-    { id: 'basic-leadership-training', title: 'Basic Leadership Training', description: 'Incoming NS1 cadets build confidence, discipline, and teamwork through the unit’s required introductory experience.', url: 'pages/basic-leadership-training.html', category: 'Start of year', order: 10, enabled: true, startDate: '', endDate: '', verifiedOn: '2026-09-07' },
-    { id: 'fitness-assessments', title: 'Physical Fitness Assessments', description: 'Cadets establish a fall baseline and demonstrate their progress during the spring assessment cycle.', url: 'pages/physical-fitness-assessments.html', category: 'Fall & spring', order: 20, enabled: true, startDate: '', endDate: '', verifiedOn: '2026-09-07' },
-    { id: 'drill-meets', title: 'Drill Meets', description: 'Unit teams put precision, academics, fitness, and leadership into action at scheduled competitions.', url: 'pages/drill-and-ceremony.html', category: 'Competition season', order: 30, enabled: true, startDate: '', endDate: '', verifiedOn: '2026-09-07' },
-    { id: 'klondike-derby', title: 'Klondike Derby', description: 'Alpha and Bravo Company teams take on the unit’s multi-stage winter course together.', url: 'pages/klondike-derby.html', category: 'Winter', order: 40, enabled: true, startDate: '', endDate: '', verifiedOn: '2026-09-07' },
-    { id: 'military-ball', title: 'Military Ball', description: 'Prepare for the unit’s formal evening of ceremony, dinner etiquette, the senior waltz, and dancing.', url: 'pages/military-ball.html', category: 'Formal tradition', order: 50, enabled: true, startDate: '', endDate: '', verifiedOn: '2026-09-07' }
+    { id: 'weekly-events', title: 'Weekly Events', description: 'Every week', url: 'pages/weekly-events.html', category: 'Weekly', order: 10, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'monthly-events', title: 'Monthly Events', description: 'Every month', url: 'pages/monthly-events.html', category: 'Monthly', order: 20, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'yearly-events', title: 'Yearly Events', description: 'Annual and seasonal', url: 'pages/yearly-events.html', category: 'Yearly', order: 30, enabled: true, verifiedOn: '2026-09-07' }
   ]
 };
