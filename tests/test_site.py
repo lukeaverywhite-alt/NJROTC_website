@@ -169,6 +169,48 @@ class SiteTests(unittest.TestCase):
         self.assertEqual(tags.count('caption'),3)
         self.assertGreaterEqual(tags.count('th'),30)
 
+    def test_cadet_reference_manual_guide_is_discoverable_and_sourced(self):
+        pdf=ROOT/'crm-3rd_edition.pdf'; guide=ROOT/'pages/cadet-reference-manual.html'
+        self.assertTrue(pdf.exists()); self.assertGreater(pdf.stat().st_size,0)
+        self.assertTrue(guide.exists())
+        parser=self.parse(guide); visible=' '.join(' '.join(parser.text).split())
+        self.assertIn(('a','../crm-3rd_edition.pdf'),parser.refs)
+        self.assertIn('Cadet Reference Manual, Third Edition (PDF)',visible)
+        self.assertIn('Open manual (PDF)',visible); self.assertIn('Download manual (PDF)',visible)
+        download_links=[attrs for tag,attrs in parser.starts if tag=='a' and attrs.get('download')]
+        self.assertEqual(len(download_links),1)
+
+        navigation=(ROOT/'data/navigation.js').read_text(encoding='utf-8')
+        content=(ROOT/'data/content.js').read_text(encoding='utf-8')
+        record=r"id: 'cadet-reference-manual'.*?url: 'pages/cadet-reference-manual.html'.*?enabled: true"
+        self.assertRegex(navigation,record); self.assertRegex(content,record)
+        self.assertIn("href: 'pages/cadet-reference-manual.html'",(ROOT/'data/site-config.js').read_text())
+
+        for topic,pages in {'advancement':'7–9','uniforms':'10–25','ranks':'26–33','customs':'34–39','leadership':'40–46','drill':'57–72','fitness':'47–49','awards':'48–56'}.items():
+            self.assertIn(f'id="{topic}"',guide.read_text())
+            self.assertIn(f'Printed pages {pages}',visible)
+            provenance=ROOT/'references'/f'crm-3rd_edition-{topic}.txt'
+            self.assertTrue(provenance.exists(),provenance)
+            source=provenance.read_text(encoding='utf-8')
+            self.assertIn('crm-3rd_edition.pdf',source); self.assertIn(f'printed pages {pages}',source)
+
+        for phrase in ('Current instructor direction','Plan of the Week','current governing guidance','take precedence'):
+            self.assertIn(phrase,visible)
+
+    def test_manual_contextual_links_are_safe_and_resolve(self):
+        pages=['training.html','chain-of-command.html','drill-and-ceremony.html','physical-fitness-assessments.html','plan-of-week.html']
+        expected={'advancement','leadership','drill','fitness','uniforms'}
+        found=set()
+        for name in pages:
+            for tag,target in self.parse(ROOT/'pages'/name).refs:
+                if tag!='a' or not target.startswith('cadet-reference-manual.html#'): continue
+                path_part,fragment=target.split('#',1); found.add(fragment)
+                resolved=(ROOT/'pages'/path_part).resolve()
+                self.assertTrue(resolved.is_relative_to(ROOT.resolve()))
+                self.assertTrue(resolved.exists())
+                self.assertIn(f'id="{fragment}"',resolved.read_text(encoding='utf-8'))
+        self.assertEqual(found,expected)
+
     def test_every_html_has_one_document_and_shared_regions(self):
         for path in HTML_FILES:
             with self.subTest(path=path):
@@ -380,7 +422,7 @@ class SiteTests(unittest.TestCase):
                 clean=urlsplit(target)
                 if clean.scheme: continue
                 if clean.path: self.assertTrue((path.parent/clean.path).resolve().exists(),(path,target))
-            source=path.read_text(); self.assertFalse(re.search(r'<a\b[^>]*>.*?<(?:a|button|input|select|textarea)\b',source,re.S|re.I),path)
+            source=path.read_text(); self.assertFalse(re.search(r'<a\b[^>]*>(?:(?!</a>).)*<(?:a|button|input|select|textarea)\b',source,re.S|re.I),path)
         all_source='\n'.join(p.read_text(errors='ignore') for p in [*HTML_FILES,ROOT/'script.js',ROOT/'styles.css',*ROOT.glob('data/*.js'),*ROOT.glob('assets/drill/*.svg')])
         self.assertFalse(any(x in all_source for x in ('<<<<<<<','=======','>>>>>>>','PLACEHOLDER')))
         raster_assets={

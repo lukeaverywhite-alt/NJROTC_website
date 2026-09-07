@@ -1,0 +1,9 @@
+Cadet Reference Manual, Third Edition — Uniforms Guide Note
+Source: ../crm-3rd_edition.pdf
+Relevant source location: printed pages 10–25.
+
+PUBLISHED SCOPE
+The HTML guide publishes only a navigational summary of general uniform wear, care, appearance, and grooming material. It directs cadets to current unit instructions for the uniform of the day and updated standards.
+
+REVIEW BOUNDARY
+This is a narrowly scoped provenance note for the corresponding HTML topic, not a substitute for the source. Current instructor direction, the Plan of the Week, and current governing guidance take precedence over this archived manual. Recheck the printed pages against any replacement edition before updating the HTML.

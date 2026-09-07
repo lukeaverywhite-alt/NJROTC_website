@@ -1,0 +1,9 @@
+Cadet Reference Manual, Third Edition — Awards Guide Note
+Source: ../crm-3rd_edition.pdf
+Relevant source location: printed pages 48–56.
+
+PUBLISHED SCOPE
+The HTML guide notes that these pages cover Cadet Challenge recognition and an NJROTC awards overview. It makes no current eligibility or entitlement claim.
+
+REVIEW BOUNDARY
+This is a narrowly scoped provenance note for the corresponding HTML topic, not a substitute for the source. Current instructor direction, the Plan of the Week, and current governing guidance take precedence over this archived manual. Recheck the printed pages against any replacement edition before updating the HTML.

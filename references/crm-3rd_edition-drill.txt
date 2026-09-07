@@ -1,0 +1,9 @@
+Cadet Reference Manual, Third Edition — Drill Guide Note
+Source: ../crm-3rd_edition.pdf
+Relevant source location: printed pages 57–72.
+
+PUBLISHED SCOPE
+The HTML guide indexes commands, formations, alignment, spacing, and movement as vocabulary subjects. It does not replace current drill or competition guidance.
+
+REVIEW BOUNDARY
+This is a narrowly scoped provenance note for the corresponding HTML topic, not a substitute for the source. Current instructor direction, the Plan of the Week, and current governing guidance take precedence over this archived manual. Recheck the printed pages against any replacement edition before updating the HTML.

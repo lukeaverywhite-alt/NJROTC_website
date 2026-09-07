@@ -1,0 +1,9 @@
+Cadet Reference Manual, Third Edition — Advancement Guide Note
+Source: ../crm-3rd_edition.pdf
+Relevant source location: printed pages 7–9.
+
+PUBLISHED SCOPE
+The HTML guide publishes only a navigational summary: these pages provide the national framework for advancement, promotion, and qualification. It does not publish or infer Bethel requirements.
+
+REVIEW BOUNDARY
+This is a narrowly scoped provenance note for the corresponding HTML topic, not a substitute for the source. Current instructor direction, the Plan of the Week, and current governing guidance take precedence over this archived manual. Recheck the printed pages against any replacement edition before updating the HTML.

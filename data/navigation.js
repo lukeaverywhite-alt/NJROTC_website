@@ -15,8 +15,9 @@ window.NAVIGATION = [
     { id: 'weather', title: 'Weather', url: 'pages/weather.html', order: 60, enabled: true },
     { id: 'wellness', title: 'Wellness', url: 'pages/wellness.html', order: 70, enabled: true },
     { id: 'info', title: 'Information Center', url: 'pages/information-center.html', order: 80, enabled: true },
-    { id: 'navy', title: 'Official Navy NJROTC website', url: 'https://www.netc.navy.mil/NSTC/NJROTC/', order: 90, enabled: true },
-    { id: 'schools', title: 'Bethel Public Schools', url: 'https://www.bethel.k12.ct.us/', order: 100, enabled: true }
+    { id: 'cadet-reference-manual', title: 'Cadet Reference Manual', url: 'pages/cadet-reference-manual.html', order: 90, enabled: true },
+    { id: 'navy', title: 'Official Navy NJROTC website', url: 'https://www.netc.navy.mil/NSTC/NJROTC/', order: 100, enabled: true },
+    { id: 'schools', title: 'Bethel Public Schools', url: 'https://www.bethel.k12.ct.us/', order: 110, enabled: true }
   ] },
   { id: 'events', title: 'Events', order: 40, enabled: true, children: [
     { id: 'ball', title: 'Military Ball', url: 'pages/military-ball.html', order: 10, enabled: true }

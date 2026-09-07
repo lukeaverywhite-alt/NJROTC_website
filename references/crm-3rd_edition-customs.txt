@@ -1,0 +1,9 @@
+Cadet Reference Manual, Third Edition — Customs Guide Note
+Source: ../crm-3rd_edition.pdf
+Relevant source location: printed pages 34–39.
+
+PUBLISHED SCOPE
+The HTML guide publishes only a topic index for forms of address, saluting, honors, and courtesies; it directs cadets to instructor-taught procedures.
+
+REVIEW BOUNDARY
+This is a narrowly scoped provenance note for the corresponding HTML topic, not a substitute for the source. Current instructor direction, the Plan of the Week, and current governing guidance take precedence over this archived manual. Recheck the printed pages against any replacement edition before updating the HTML.
