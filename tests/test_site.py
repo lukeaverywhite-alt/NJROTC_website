@@ -350,6 +350,12 @@ class SiteTests(unittest.TestCase):
         for dynamic in ('data-announcements','data-calendar','data-countdown','data-quick-links'):
             self.assertLessEqual(text.count(dynamic),1)
 
+    def test_homepage_hero_regions_are_present_once(self):
+        home=self.parse(ROOT/'index.html')
+        classes=[attrs.get('class','').split() for _,attrs in home.starts if isinstance(attrs,dict)]
+        for class_name in ('mark-stack','mark-console','hero-mark','unit-credentials','hero-copy'):
+            self.assertEqual(sum(class_name in names for names in classes),1,class_name)
+
     def test_local_targets_exist_and_paths_do_not_escape(self):
         for path in HTML_FILES:
             for _, target in self.parse(path).refs:
@@ -718,16 +724,18 @@ class SiteTests(unittest.TestCase):
             self.assertEqual(len(parser.ids),len(set(parser.ids)))
             self.assertIn(('a','chain-of-command.html'),parser.refs)
         command=' '.join(self.parse(ROOT/'pages/command-staff.html').text)
-        for value in ('Andrew Ipkevich','Joe Meehan','Lucas Battle','Toshan Bhattacharya','Rachel Ribeiro','Joseph Sacchinelli','Katherine Kechejian','Baylee Cole','Nolan Godfrey','Gavin Kopreski','Sarah Borsch','Stephen Gaspar','Adhwaitha Devasani','Jonah Funk','Cooper Cote','Akhil Sharma','Avni Shah','Brayden Wildman','Jaxon Tarantino','Sophia Gmitter','Eden Kopreski','Bhuvan Dasari','Melyssa Moniz','Samuel Caram','Juliana Esposito','Aziza Macchiarulo','Connor Koke','Zia Fathima Arakal'):
+        for value in ('Andrew Ipkevich','Joe Meehan','Lukas Battle','Toshan Bhattacharya','Rachel Ribeiro','Joseph Sacchinelli','Katherine Kechejian','Baylee Cole','Nolan Godfrey','Gavin Kopreski','Sarah Borsch','Stephen Gaspar','Adhwaitha Devasani','Jonah Funk','Cooper Cote','Akhil Sharma','Avni Shah','Brayden Wildman','Jaxon Tarantino','Sophia Gmitter','Eden Kopreski','Bhuvan Dasari','Melyssa Moniz','Samuel Caram','Juliana Esposito','Aziza Macchiarulo','Connor Koke','Zia Fathima Arakal'):
             self.assertEqual(command.count(value),1,value)
         departments=' '.join(self.parse(ROOT/'pages/departments.html').text)
         for value in ('Zia Arakal','Arnab Karmokar','Radha Sinha','Prisha Desai','Sam Caram','Nellie Adams','Melyssa Moniz','Michael Connors','Andres Martinez','Wyatt Santorella','Sophia Gmitter','Allison Degiorgio','Zachary Wood','Esmerelda Costa-Bernardo','Allison Hill','Piera Giudice','Cooper Cote','Luke White','Juliana Esposito','Audrey Steele','Dylan Kantor','Colin Arbucci','Amina Macchiarulo','Lily Cohan','Abigail Moore','Zahra Khan','Henry Atkins','Michael Williams','Bhuvan Dasari','Caleb Metcalf','Aneesh Amaram','Aditi Shah'):
             self.assertEqual(departments.count(value),1,value)
         department_source=(ROOT/'pages/departments.html').read_text(encoding='utf-8')
-        precedence=('Administration','Academic','Drill','Weapons','Manufacturing','1st Lieutenant','Public Affairs','Supply','Physical Fitness','Leadership','GENTS','Information Technology','Environmental')
+        precedence=('Administration','Academic','Drill','Weapons','Manufacturing','1st Lieutenant','Public Affairs','Supply','Physical Fitness','Lady Leadership','GENTS','Information Technology','Environmental')
         positions=[department_source.index(f'<h2>{heading}</h2>') for heading in precedence]
         self.assertEqual(positions,sorted(positions))
-        for outdated in ('Joe Sacchinelli','Cat Katician','Bailey Cole','Gavin Kapreski','Sarah Borsh'):
+        for outdated in ('Joe Sacchinelli','Cat Katician','Bailey Cole','Gavin Kapreski','Sarah Borsh','Lucas Battle'):
             self.assertNotIn(outdated,command)
+        self.assertEqual(departments.count('Lady Leadership'),1)
+        self.assertNotIn('<h2>Leadership</h2>',department_source)
 
 if __name__ == '__main__': unittest.main()
