@@ -411,6 +411,24 @@ class SiteTests(unittest.TestCase):
                 self.assertIn(f'id="{fragment}"',resolved.read_text(encoding='utf-8'))
         self.assertEqual(found,expected)
 
+    def test_plan_of_week_publishes_supplied_pdf_responsively(self):
+        page = ROOT / 'pages' / 'plan-of-week.html'
+        parser = self.parse(page)
+        pdf = '../assets/documents/plan-of-the-week-2026-08-31-to-2026-09-06.pdf'
+        pdf_path = ROOT / 'assets' / 'documents' / 'plan-of-the-week-2026-08-31-to-2026-09-06.pdf'
+        iframes = [attrs for tag, attrs in parser.starts if tag == 'iframe']
+
+        self.assertTrue(pdf_path.is_file())
+        self.assertEqual(len(iframes), 1)
+        self.assertEqual(iframes[0].get('src'), pdf + '#view=FitH')
+        self.assertTrue(iframes[0].get('title', '').strip())
+        self.assertIn(('a', pdf), parser.refs)
+        self.assertIn('Open Full PDF', ' '.join(parser.text))
+
+        styles = (ROOT / 'styles.css').read_text(encoding='utf-8')
+        self.assertIn('.pow-reader iframe', styles)
+        self.assertRegex(styles, r'@media\(max-width:700px\).*?\.pow-reader iframe', re.S)
+
     def test_every_html_has_one_document_and_shared_regions(self):
         for path in HTML_FILES:
             with self.subTest(path=path):
