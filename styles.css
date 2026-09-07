@@ -109,13 +109,16 @@ code { color: var(--gold); } dialog { color: var(--text-primary); background: va
 .event-intro p,.archive-callout p,.event-next p,.venue-layout p,.ball-lede p { color:var(--text-secondary); }
 .event-actions { display:flex; flex-wrap:wrap; gap:.75rem; }
 .event-intro .event-actions { flex:0 0 auto; flex-direction:column; min-width:240px; }
-.event-card-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:1rem; }
-.event-card-grid .card { grid-column:span 2; min-height:220px; }
-.event-card-grid .card:nth-child(-n+2) { grid-column:span 3; }
+.event-card-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem; }
+.event-card-grid .card { min-height:220px; }
 .event-card-grid .card::before { content:"Open guide →"; display:block; margin-top:auto; padding-top:1rem; color:var(--gold); font:800 .75rem/1.4 ui-monospace,monospace; letter-spacing:.08em; text-transform:uppercase; }
 .event-card-grid .card { display:flex; flex-direction:column; }
 .event-next { max-width:820px; text-align:center; }
 .event-next .event-actions { justify-content:center; margin-top:1.5rem; }
+.cadence-guide { display:grid; gap:1rem; }
+.cadence-guide .content-card { border-left:3px solid var(--gold); }
+.cadence-guide h2 { margin:.2rem 0 .65rem; color:var(--text-heading); }
+.cadence-resources { display:flex; flex-wrap:wrap; gap:.75rem; margin-top:1.5rem; }
 
 .ball-overview { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr); gap:clamp(2rem,6vw,5rem); align-items:center; }
 .ball-lede > p:first-of-type { color:var(--text-primary); font-size:1.18rem; }
@@ -149,8 +152,8 @@ code { color: var(--gold); } dialog { color: var(--text-primary); background: va
 .venue-list article::after { content:""; position:absolute; right:.9rem; bottom:.9rem; width:26px; height:26px; border-right:1px solid var(--gold); border-bottom:1px solid var(--gold); }
 .venue-list p { margin-top:1.5rem; font-size:.9rem; }
 .archive-callout { padding:clamp(1.5rem,4vw,2.5rem); border-left:3px solid var(--gold); background:var(--surface-raised); }
-@media(max-width:900px) { .event-card-grid .card,.event-card-grid .card:nth-child(-n+2) { grid-column:span 3; }.ball-sequence-heading { position:static; } }
-@media(max-width:760px) { .event-intro,.archive-callout { align-items:stretch; flex-direction:column; }.event-intro .event-actions { min-width:0; }.event-card-grid { grid-template-columns:1fr; }.event-card-grid .card,.event-card-grid .card:nth-child(-n+2) { grid-column:auto; min-height:0; }.ball-overview,.ball-sequence-layout,.venue-layout { grid-template-columns:1fr; }.venue-list { grid-template-columns:1fr; }.ball-status dl div { grid-template-columns:1fr; gap:.15rem; }.ball-sequence li { padding-left:4rem; }.ball-sequence li::after { width:2.75rem; height:2.75rem; }.ball-sequence li:not(:last-child)::before { left:1.37rem; }.ball-hero::before { opacity:.35; } }
+@media(max-width:900px) { .event-card-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.ball-sequence-heading { position:static; } }
+@media(max-width:760px) { .event-intro,.archive-callout { align-items:stretch; flex-direction:column; }.event-intro .event-actions { min-width:0; }.event-card-grid { grid-template-columns:1fr; }.event-card-grid .card { min-height:0; }.cadence-resources { flex-direction:column; }.cadence-resources .button { justify-content:center; }.ball-overview,.ball-sequence-layout,.venue-layout { grid-template-columns:1fr; }.venue-list { grid-template-columns:1fr; }.ball-status dl div { grid-template-columns:1fr; gap:.15rem; }.ball-sequence li { padding-left:4rem; }.ball-sequence li::after { width:2.75rem; height:2.75rem; }.ball-sequence li:not(:last-child)::before { left:1.37rem; }.ball-hero::before { opacity:.35; } }
 .table-scroll { overflow-x:auto; margin:1rem 0 2rem; border:1px solid var(--border); background:var(--surface-deep); }
 .standards-table { width:100%; min-width:760px; border-collapse:collapse; font-size:.88rem; }
 .standards-table caption { padding:1rem; color:var(--text-heading); font-size:1.05rem; font-weight:800; text-align:left; }
