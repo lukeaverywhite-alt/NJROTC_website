@@ -177,3 +177,18 @@ code { color: var(--gold); } dialog { color: var(--text-primary); background: va
 @media(max-width:900px) { .site-nav { display:block; visibility:hidden; opacity:0; transform:translateY(-10px); transition:opacity .16s,transform .16s,visibility 0s linear .16s; }.menu-open .site-nav { visibility:visible;opacity:1;transform:translateY(0);transition-delay:0s; }.dropdown { display:none;transform:none;}.nav-trigger[aria-expanded="true"]+.dropdown { display:block; }.animations-ready .reveal-item { transform:translateY(10px); }.animations-ready .reveal-item.is-visible { transform:none; }.weather-sun,.weather-moon { width:95px;height:95px;right:5%; }.weather-cloud { transform:scale(.75);transform-origin:right top;right:8%; } }
 @media(hover:none),(pointer:coarse) { .card:active,.content-card-link:active,.gallery-item:active,.forecast-item:active,.photo-visual.is-selected { transform:translateY(-3px);border-color:var(--gold);box-shadow:0 10px 26px var(--glow); } }
 @media(prefers-reduced-motion:reduce) { .animations-ready .reveal-item,.animations-ready .reveal-item.is-visible { opacity:1!important;transform:none!important;transition:none!important; }.page-exit #main-content,.page-exit [data-site-footer] { opacity:1!important; }.creed-presentation.is-visible .creed-sentence { color:var(--text-primary);text-shadow:none; } }
+
+/* Cadet Reference Manual topic library */
+.card-action { display:inline-block; margin-top:.65rem; color:var(--gold); }
+.crm-layout { display:grid; grid-template-columns:minmax(220px,300px) minmax(0,1fr); gap:2rem; align-items:start; }
+.crm-contents { position:sticky; top:96px; }
+.crm-contents ol { margin:.75rem 0 1rem; padding-left:1.3rem; }
+.crm-contents li+li { margin-top:.55rem; }
+.crm-article { min-width:0; }
+.crm-article section { scroll-margin-top:96px; padding:1.4rem 0; border-bottom:1px solid var(--border); }
+.crm-article section:first-of-type { padding-top:.4rem; }
+.crm-article h2 { margin:.2rem 0 .7rem; color:var(--text-heading); font-size:clamp(1.45rem,3vw,2rem); }
+.crm-article li,.crm-article dd { color:var(--text-secondary); }
+.crm-article dt { margin-top:.8rem; color:var(--text-heading); font-weight:800; }
+.crm-topic-nav { display:flex; flex-wrap:wrap; gap:.75rem; justify-content:center; }
+@media(max-width:760px) { .crm-layout { grid-template-columns:1fr; }.crm-contents { position:static; }.crm-topic-nav { align-items:stretch; flex-direction:column; }.crm-topic-nav .button { justify-content:center; } }

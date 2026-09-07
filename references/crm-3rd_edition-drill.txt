@@ -1,9 +1,13 @@
-Cadet Reference Manual, Third Edition — Drill Guide Note
+Cadet Reference Manual, Third Edition — Drill Terminology Web Guide Provenance
 Source: ../crm-3rd_edition.pdf
 Relevant source location: printed pages 57–72.
+Published route: ../pages/crm-drill.html
 
 PUBLISHED SCOPE
-The HTML guide indexes commands, formations, alignment, spacing, and movement as vocabulary subjects. It does not replace current drill or competition guidance.
+The web page faithfully paraphrases the archived manual’s treatment of parts of a command and command voice; positions and facing; formation vocabulary; marching and unit movement; practice habits. Content is organized and normalized for accessible web reading rather than reproduced as page-layout transcription.
+
+OMISSIONS AND ACCESSIBILITY
+Text cannot replace instructor demonstration. Competition procedures and current governing drill guidance are outside this archived summary.
 
 REVIEW BOUNDARY
-This is a narrowly scoped provenance note for the corresponding HTML topic, not a substitute for the source. Current instructor direction, the Plan of the Week, and current governing guidance take precedence over this archived manual. Recheck the printed pages against any replacement edition before updating the HTML.
+The source is an archived national manual. Current instructor direction, the Bethel NJROTC Plan of the Week, and current governing Navy NJROTC guidance take precedence. Recheck these printed pages and any replacement edition before revising the web guide. Unit-specific schedules, assignments, assessments, advancement decisions, and uniform direction must remain in their current authoritative locations.
