@@ -30,6 +30,25 @@ class SiteTests(unittest.TestCase):
     def parse(self, path):
         parser=DocumentParser(); parser.feed(path.read_text(encoding='utf-8')); return parser
 
+    def test_homepage_credentials_follow_logo_and_include_award_history(self):
+        homepage = ROOT / 'index.html'
+        source = homepage.read_text(encoding='utf-8')
+        parser = self.parse(homepage)
+        visible = ' '.join(' '.join(parser.text).split())
+        logo_position = source.index('class="mark-console"')
+        credentials_position = source.index('class="unit-credentials"')
+        self.assertLess(logo_position, credentials_position)
+        self.assertIn('Navy Distinguished Unit Award', visible)
+        self.assertIn('with Academic Honors', visible)
+        self.assertIn('Most Outstanding Unit Award 2024', visible)
+        for year in range(2004, 2026):
+            self.assertIn(str(year), visible)
+        self.assertIn('aria-labelledby="unit-credentials-title"', source)
+
+        styles = (ROOT / 'styles.css').read_text(encoding='utf-8')
+        self.assertIn('@keyframes credentials-arrive', styles)
+        self.assertIn('@media(prefers-reduced-motion:reduce)', styles)
+
     def test_team_cards_have_dedicated_structural_pages(self):
         content=(ROOT/'data/content.js').read_text(encoding='utf-8')
         teams_body=re.search(r"\bteams:\s*\[(.*?)\n\s*\]",content,re.S).group(1)
