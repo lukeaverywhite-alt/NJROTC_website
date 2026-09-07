@@ -40,12 +40,12 @@ window.SITE_CONTENT = {
   ],
   joining: [
     { id: 'counselor', title: 'Talk with your school counselor', description: 'Contact the Bethel High School Counseling Office through the school’s main number, 203-794-8600, to ask how NJROTC fits into your course plan.', category: 'First steps', order: 10, enabled: true, verifiedOn: '2026-09-06' },
-    { id: 'classroom', title: 'Contact the NJROTC instructors', description: 'Email Commander Andrew Ivcovich or Master Sergeant Joe Meehan using the official school contact details above.', category: 'First steps', order: 20, enabled: true, verifiedOn: '2026-09-06' }
+    { id: 'classroom', title: 'Contact the NJROTC instructors', description: 'Email Commander Andrew Ipkevich or Master Sergeant Joe Meehan using the official school contact details above.', category: 'First steps', order: 20, enabled: true, verifiedOn: '2026-09-07' }
   ],
   leadership: [
-    { id: 'instructors', title: 'Unit instructors', description: 'Commander Andrew Ivcovich, U.S. Navy (Retired), is the Senior Naval Science Instructor (SNSI). Master Sergeant Joe Meehan, U.S. Marine Corps (Retired), is the Assistant Naval Science Instructor (ANSI).', category: 'Instruction', order: 10, enabled: true, verifiedOn: '2026-09-06' },
-    { id: 'command-staff', title: 'Command staff', description: 'Current cadet staff information is published only after unit approval.', category: 'Cadet leadership', order: 20, enabled: true, verifiedOn: '2026-09-05' },
-    { id: 'departments', title: 'Departments', description: 'Approved billets and departmental responsibilities are arranged in hierarchy order.', category: 'Organization', order: 30, enabled: true, verifiedOn: '2026-09-05' }
+    { id: 'instructors', title: 'Unit instructors', description: 'Commander Andrew Ipkevich, U.S. Navy (Retired), is the Senior Naval Science Instructor (SNSI). Master Sergeant Joe Meehan, U.S. Marine Corps (Retired), is the Assistant Naval Science Instructor (ASNI).', category: 'Instruction', order: 10, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'command-staff', title: 'Command staff', description: 'View the current battalion and company leadership hierarchy.', url: 'pages/command-staff.html', category: 'Cadet leadership', order: 20, enabled: true, verifiedOn: '2026-09-07' },
+    { id: 'departments', title: 'Departments', description: 'Meet the cadets leading the unit’s operational departments.', url: 'pages/departments.html', category: 'Organization', order: 30, enabled: true, verifiedOn: '2026-09-07' }
   ],
   schedules: [
     { id: 'monday', title: 'Monday', description: 'Schedule not published.', category: 'Daily brief', order: 10, enabled: true, startDate: '', endDate: '', verifiedOn: '2026-09-05' },

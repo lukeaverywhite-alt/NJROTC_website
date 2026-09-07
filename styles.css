@@ -192,3 +192,18 @@ code { color: var(--gold); } dialog { color: var(--text-primary); background: va
 .crm-article dt { margin-top:.8rem; color:var(--text-heading); font-weight:800; }
 .crm-topic-nav { display:flex; flex-wrap:wrap; gap:.75rem; justify-content:center; }
 @media(max-width:760px) { .crm-layout { grid-template-columns:1fr; }.crm-contents { position:static; }.crm-topic-nav { align-items:stretch; flex-direction:column; }.crm-topic-nav .button { justify-content:center; } }
+
+/* Chain-of-command hierarchy */
+.command-flow { display:grid; gap:1.25rem; }
+.command-tier { position:relative; padding:1.4rem; border:1px solid var(--border); background:linear-gradient(145deg,var(--surface-raised),var(--surface-deep)); box-shadow:0 12px 28px rgba(0,0,0,.14); }
+.command-tier::before { content:""; position:absolute; top:-1.25rem; left:50%; height:1.25rem; border-left:2px solid color-mix(in srgb,var(--gold) 65%,var(--border)); }
+.command-tier:first-child::before { display:none; }
+.command-tier h2,.department-card h2 { margin:.15rem 0 1rem; color:var(--text-heading); }
+.billet-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.75rem; margin:0; }
+.billet { padding:.8rem; border-left:2px solid var(--gold); background:color-mix(in srgb,var(--surface-deep) 72%,transparent); }
+.billet dt { color:var(--gold); font:800 .74rem/1.4 ui-monospace,monospace; letter-spacing:.08em; text-transform:uppercase; }
+.billet dd { margin:.3rem 0 0; color:var(--text-heading); font-weight:700; }
+.company-grid,.department-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+.department-card { padding:1.25rem; border:1px solid var(--border); background:linear-gradient(145deg,var(--surface-raised),var(--surface-deep)); }
+.department-card .billet-list { grid-template-columns:1fr; }
+@media(max-width:760px) { .company-grid,.department-grid { grid-template-columns:1fr; } }

@@ -34,10 +34,10 @@ window.SITE_CONFIG = {
     phone: '203-794-8600',
     address: '300 Whittlesey Drive, Bethel, CT 06801',
     instructors: [
-      { name: 'Andrew Ivcovich', title: 'Commander, U.S. Navy (Retired)', role: 'Senior Naval Science Instructor (SNSI)', email: 'ivcovicha@bethel.k12.ct.us' },
-      { name: 'Joe Meehan', title: 'Master Sergeant, U.S. Marine Corps (Retired)', role: 'Assistant Naval Science Instructor (ANSI)', email: 'meehanj@bethel.k12.ct.us' }
+      { name: 'Andrew Ipkevich', title: 'Commander, U.S. Navy (Retired)', role: 'Senior Naval Science Instructor (SNSI)', email: 'ivcovicha@bethel.k12.ct.us' },
+      { name: 'Joe Meehan', title: 'Master Sergeant, U.S. Marine Corps (Retired)', role: 'Assistant Naval Science Instructor (ASNI)', email: 'meehanj@bethel.k12.ct.us' }
     ],
-    verifiedOn: '2026-09-06'
+    verifiedOn: '2026-09-07'
   },
   quickLinks: [
     { label: 'Plan of the Week', href: 'pages/plan-of-week.html', description: 'Weekly schedule and uniform guidance' },
