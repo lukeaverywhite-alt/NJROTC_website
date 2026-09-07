@@ -46,6 +46,7 @@
     if (!mount) return;
     const bar = element('div', 'header-inner site-width');
     const brand = link(identity.shortName || 'Bethel NJROTC', identity.logo ? 'index.html' : 'index.html', 'brand');
+    const logo = element('img'); logo.src = safeUrl(identity.logo || 'assets/file_00000000a0d081f5b3d9f5b6c823911e.png'); logo.alt = ''; logo.width = 46; logo.height = 46;
     const logo = element('img'); logo.src = safeUrl(identity.logo || 'assets/official-unit-mark.png'); logo.alt = ''; logo.width = 50; logo.height = 49;
     brand.prepend(logo); bar.append(brand);
     const nav = element('nav', 'site-nav'); nav.id = 'site-navigation'; nav.setAttribute('aria-label', 'Primary navigation');
@@ -99,6 +100,7 @@
       const card = element(record.url ? 'a' : 'article', 'card');
       if (record.url) { const url = safeUrl(record.url); if (!url) return; card.href = url; }
       card.dataset.contentId = record.id;
+      if (record.image) { const imageUrl = safeUrl(record.image); if (imageUrl) { const image = element('img', 'card-photo'); image.src = imageUrl; image.alt = record.imageAlt || ''; image.loading = 'lazy'; image.decoding = 'async'; card.append(image); } }
       card.append(element('p', 'eyebrow', record.category || ''), element('h2', '', record.title), element('p', '', record.description)); fragment.append(card);
     });
     replaceMountContent(mount, fragment, 'collection');
@@ -113,7 +115,16 @@
   function renderQuickLinks() { document.querySelectorAll('[data-quick-links]').forEach(mount => { const fragment=document.createDocumentFragment(); (config.quickLinks || []).forEach(item => { const node=link(item.label,item.href,'card'); if(node){node.append(element('span','',item.description));fragment.append(node);} }); replaceMountContent(mount,fragment,'quick-links'); }); }
   function renderCountdown() { document.querySelectorAll('[data-countdown]').forEach(mount => { const fragment=document.createDocumentFragment(); const event=config.featuredEvent; mount.hidden=!event?.enabled || !event.target; if(!mount.hidden){const days=Math.max(0,Math.ceil((new Date(event.target)-Date.now())/86400000));fragment.append(element('strong','',`${days} days — ${event.name}`),element('p','',event.subtitle || ''));} replaceMountContent(mount,fragment,'countdown'); }); }
   function renderCalendar() { document.querySelectorAll('[data-calendar]').forEach(mount => { const fragment=document.createDocumentFragment(); const url=safeUrl(config.calendar?.embedUrl || ''); if(!url)fragment.append(element('p','empty-state','The verified public unit calendar is not available yet.')); else {const frame=element('iframe');frame.src=url;frame.title='Bethel NJROTC calendar';frame.loading='lazy';fragment.append(frame);} replaceMountContent(mount,fragment,'calendar'); }); }
-  function renderGallery() { document.querySelectorAll('[data-gallery]').forEach(mount => { const fragment=document.createDocumentFragment(); const items=window.GALLERY_ITEMS || []; if(!items.length)fragment.append(element('p','empty-state','No approved gallery images are available yet.')); items.forEach(item => {const src=safeUrl(item.src);if(!src)return;const figure=element('figure','gallery-item');const image=element('img');image.src=src;image.alt=item.alt || '';image.loading='lazy';figure.append(image,element('figcaption','',item.caption || ''));fragment.append(figure);}); replaceMountContent(mount,fragment,'gallery'); }); }
+  function renderGallery() { document.querySelectorAll('[data-gallery]').forEach(mount => { const fragment=document.createDocumentFragment(); const items=window.GALLERY_ITEMS || []; if(!items.length)fragment.append(element('p','empty-state','No approved gallery images are available yet.')); items.forEach((item,index) => {const src=safeUrl(item.src);if(!src)return;const figure=element('figure','gallery-item');figure.tabIndex=0;figure.setAttribute('role','button');figure.setAttribute('aria-label',`Open photograph: ${item.caption || item.alt || index + 1}`);figure.dataset.galleryIndex=String(index);const image=element('img');image.src=src;image.alt=item.alt || '';image.loading='lazy';image.decoding='async';figure.append(image,element('figcaption','',item.caption || ''));fragment.append(figure);}); replaceMountContent(mount,fragment,'gallery'); }); }
+  function initializeGalleryDialog() {
+    const dialog=document.querySelector('#gallery-dialog'); if(!dialog || typeof dialog.showModal !== 'function') return;
+    const items=window.GALLERY_ITEMS || []; const image=dialog.querySelector('img'); const caption=dialog.querySelector('p'); let current=0;
+    const show=index => { current=(index+items.length)%items.length; const item=items[current]; const src=safeUrl(item?.src); if(!src)return; image.src=src; image.alt=item.alt || ''; caption.textContent=item.caption || ''; if(!dialog.open)dialog.showModal(); };
+    document.querySelector('[data-gallery]')?.addEventListener('click',event => {const item=event.target.closest('[data-gallery-index]');if(item)show(Number(item.dataset.galleryIndex));});
+    document.querySelector('[data-gallery]')?.addEventListener('keydown',event => {if(event.key !== 'Enter' && event.key !== ' ')return;const item=event.target.closest('[data-gallery-index]');if(item){event.preventDefault();show(Number(item.dataset.galleryIndex));}});
+    dialog.querySelector('[data-close]')?.addEventListener('click',()=>dialog.close()); dialog.querySelector('[data-prev]')?.addEventListener('click',()=>show(current-1)); dialog.querySelector('[data-next]')?.addEventListener('click',()=>show(current+1));
+    dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close();}); dialog.addEventListener('keydown',event=>{if(event.key==='ArrowLeft')show(current-1);if(event.key==='ArrowRight')show(current+1);});
+  }
   function renderCurrentYear() { document.querySelectorAll('[data-current-year]').forEach(node => { node.textContent = String(new Date().getFullYear()); }); }
 
 
@@ -171,7 +182,7 @@
   function initialize() {
     renderHeader(); initializeTheme(); renderFooter(); renderAnnouncements(); renderQuickLinks(); renderCountdown(); renderCalendar(); renderGallery(); renderCurrentYear();
     document.querySelectorAll('[data-content]').forEach(renderCollection);
-    initializePhotoVisuals(); initializeAnimations(); initializePageTransitions();
+    initializePhotoVisuals(); initializeGalleryDialog(); initializeAnimations(); initializePageTransitions();
     if (document.documentElement.dataset.siteListenersBound) return;
     document.documentElement.dataset.siteListenersBound = 'true';
     document.addEventListener('click', event => { if (!event.target.closest('.nav-group')) closeDropdowns(); if (!event.target.closest('[data-photo-visual]')) document.querySelectorAll('[data-photo-visual].is-selected').forEach(photo => photo.classList.remove('is-selected')); });

@@ -262,6 +262,12 @@ class SiteTests(unittest.TestCase):
             self.assertEqual(len(re.findall(rf'\bconst\s+{name}\b',source)),1,name)
 
     def test_official_unit_mark_is_the_single_shared_logo(self):
+        official='assets/file_00000000a0d081f5b3d9f5b6c823911e.png'
+        self.assertTrue((ROOT/official).is_file())
+        self.assertFalse((ROOT/'assets/unit-mark.svg').exists())
+        self.assertEqual((ROOT/official).read_bytes()[:8],b'\x89PNG\r\n\x1a\n')
+        sources=[ROOT/'index.html',ROOT/'404.html',ROOT/'script.js',ROOT/'data/site-config.js']
+        self.assertTrue(all(official in path.read_text(encoding='utf-8') for path in sources))
         mark = ROOT / 'assets' / 'official-unit-mark.png'
         self.assertTrue(mark.exists())
         self.assertFalse((ROOT / 'assets' / 'file_00000000a0d081f5b3d9f5b6c823911e.png').exists())
