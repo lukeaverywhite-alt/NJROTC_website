@@ -1,0 +1,44 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Containerfile
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - database:/data
+      - media:/media
+    expose: ["8000"]
+    read_only: true
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=32m"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+  proxy:
+    image: caddy:2.8.4-alpine@sha256:4842e5c029b05b69a76a24912a1e0c8f6f31b85f10af9cdb6758eb17f096c333
+    restart: unless-stopped
+    depends_on: [app]
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN}
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    security_opt: ["no-new-privileges:true"]
+  backup:
+    build:
+      context: .
+      dockerfile: deploy/Containerfile.backup
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - database:/source/database:ro
+      - media:/source/media:ro
+      - backups:/staging
+      - ./deploy:/scripts:ro
+volumes:
+  database:
+  media:
+  backups:
+  caddy_data:
+  caddy_config:

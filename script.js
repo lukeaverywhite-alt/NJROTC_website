@@ -103,7 +103,10 @@
   function renderFooter() {
     const mount = document.querySelector('[data-site-footer]'); if (!mount) return;
     const wrap = element('div', 'footer-inner site-width'); wrap.append(element('p', '', `© ${new Date().getFullYear()} ${identity.fullName || 'Bethel High School NJROTC'}`));
-    const contact = link('Contact', 'pages/contact.html'); if (contact) wrap.append(contact); const fragment = document.createDocumentFragment(); fragment.append(wrap); replaceMountContent(mount, fragment, 'footer');
+    const links = element('nav', 'footer-links'); links.setAttribute('aria-label', 'Footer');
+    const contact = link('Contact', 'pages/contact.html'); if (contact) links.append(contact);
+    const administration = link('Staff Administration', 'admin/login'); if (administration) links.append(administration);
+    wrap.append(links); const fragment = document.createDocumentFragment(); fragment.append(wrap); replaceMountContent(mount, fragment, 'footer');
   }
 
   function renderUnitCredentials() {

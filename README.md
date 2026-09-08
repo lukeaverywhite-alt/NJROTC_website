@@ -2,6 +2,14 @@
 
 A dependency-free static website for the Bethel High School NJROTC unit. Plain HTML, CSS, and browser JavaScript keep the site portable to a GitHub Pages project subdirectory; `<body data-base>` tells the shared renderer how to resolve repository-root paths on each page.
 
+The repository also contains a dependency-free Python server for a future privately hosted deployment. It serves every existing URL unchanged, adds protected structured administration, and leaves the GitHub Pages workflow intact as a fallback. See `docs/SECURITY.md` for account and editorial controls and `RECOVERY.md` for owner-operated backups and restoration.
+
+Run the server locally with testing-only secrets:
+
+```bash
+SESSION_KEY=local-only TOTP_ENCRYPTION_KEY=local-only OWNER_EMAIL=owner@example.invalid PUBLIC_ORIGIN=http://localhost:8000 SECURE_COOKIES=0 python3 -m server.app
+```
+
 ## Test and preview
 
 Node.js is a contributor requirement because the regression suite runs `node --check script.js`. Run the complete automated suite with one command:
@@ -29,6 +37,8 @@ Do not duplicate managed records in HTML. Stable IDs must be unique, `order` val
 | Announcements | `data/announcements.js` |
 | Gallery records | `data/gallery.js` |
 | Identity, unit credentials, public calendar embed, contact, weather, event settings | `data/site-config.js` |
+
+After changing any of these fallback sources, run `tools/refresh_seed.sh`. The checked-in `data/seed.json` is the non-executable, structured deployment seed consumed by the server; the JavaScript files remain only for GitHub Pages compatibility during the transition.
 
 Desktop dropdowns and the mobile menu are generated from the same categorized navigation records. Calendar is a Cadet Resources destination at `pages/calendar.html`; configure only its verified, public embed URL at `SITE_CONFIG.calendar.embedUrl` in `data/site-config.js`. Empty configuration intentionally produces a clear empty state.
 
