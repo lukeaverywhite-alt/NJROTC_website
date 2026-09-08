@@ -1,0 +1,2 @@
+"""Bethel NJROTC server application."""
+
